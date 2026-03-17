@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Tienda</title>
+
+<style>
+
+body{
+font-family: Arial;
+background:#f4f4f4;
+text-align:center;
+margin:0;
+}
+
+h1{
+margin-top:20px;
+}
+
+/* GRID */
+.productos{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px;
+padding:20px;
+}
+
+/* CARD */
+.card{
+background:white;
+padding:15px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+.card img{
+width:100%;
+height:220px;
+object-fit:contain; /* 🔥 NO recorta */
+background:#fff;
+border-radius:10px;
+}
+
+/* BOTONES */
+.boton{
+display:inline-block;
+margin-top:10px;
+padding:10px;
+background:#28a745;
+color:white;
+text-decoration:none;
+border-radius:5px;
+cursor:pointer;
+}
+
+/* MODAL */
+.modal{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.7);
+justify-content:center;
+align-items:center;
+z-index:1000;
+}
+
+.modal-content{
+background:white;
+padding:20px;
+border-radius:10px;
+width:90%;
+max-width:400px;
+text-align:center;
+position:relative;
+}
+
+/* CARRUSEL */
+.carousel{
+position:relative;
+}
+
+.carousel img{
+width:100%;
+height:250px;
+object-fit:contain;
+background:#fff;
+border-radius:10px;
+}
+
+.btn{
+position:absolute;
+top:50%;
+transform:translateY(-50%);
+background:black;
+color:white;
+border:none;
+padding:10px;
+cursor:pointer;
+}
+
+.prev{ left:0; }
+.next{ right:0; }
+
+/* CERRAR */
+.close{
+position:absolute;
+top:10px;
+right:10px;
+cursor:pointer;
+font-size:20px;
+}
+
+/* SHARE */
+.share{
+margin-top:15px;
+}
+
+.share a{
+display:inline-block;
+margin:5px;
+padding:6px 10px;
+background:#eee;
+border-radius:5px;
+text-decoration:none;
+font-size:14px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🛒 Nuestra Tienda</h1>
+
+<div class="productos" id="productos">Cargando productos...</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content" id="modalContent">
+    <span class="close" onclick="cerrar()">✖</span>
+  </div>
+</div>
+
+<script>
+
+let productosData = [];
+
+// 🔥 FETCH SEGURO
+fetch("https://opensheet.elk.sh/1bIcXzZy-yv3Veims11KbIbamG3ruhyspJC0tsCwhge8/Hoja1")
+.then(res => {
+if(!res.ok) throw new Error("Error en la respuesta");
+return res.json();
+})
+.then(data => {
+
+console.log("DATOS CARGADOS:", data);
+
+productosData = data;
+
+let html="";
+
+data.forEach(p=>{
+
+html+=`
+<div class="card">
+<img src="${p.imagen}">
+<h3>${p.nombre}</h3>
+<p>$${p.precio}</p>
+<div class="boton" onclick="verProducto('${p.id}')">Ver producto</div>
+</div>
+`;
+
+});
+
+document.getElementById("productos").innerHTML=html;
+
+})
+.catch(error => {
+
+console.error("ERROR:", error);
+
+document.getElementById("productos").innerHTML = `
+<p style="color:red;">
+Error cargando productos ❌<br>
+Revisa tu conexión o Google Sheets
+</p>
+`;
+
+});
+
+
+// 🔥 VER PRODUCTO (MODAL)
+function verProducto(id){
+
+let p = productosData.find(x => String(x.id).trim() === String(id).trim());
+
+if(!p){
+alert("Producto no encontrado");
+return;
+}
+
+// IMÁGENES
+let imagenes = [p.imagen, p.imagen2, p.imagen3].filter(x => x && x.trim() !== "");
+
+let current = 0;
+
+// URL ACTUAL
+let urlActual = window.location.href;
+
+let html = `
+<h2>${p.nombre}</h2>
+
+<div class="carousel">
+<button class="btn prev" onclick="cambiar(-1)">❮</button>
+<img id="img" src="${imagenes[0]}">
+<button class="btn next" onclick="cambiar(1)">❯</button>
+</div>
+
+<p>${p.descripcion || ""}</p>
+
+<h3>$${p.precio}</h3>
+
+<a class="boton" target="_blank"
+href="https://wa.me/573222117202?text=Hola quiero comprar ${p.nombre}">
+Comprar por WhatsApp
+</a>
+
+<div class="share">
+<p>Compartir:</p>
+
+<a target="_blank" href="https://wa.me/?text=${p.nombre} ${urlActual}">WhatsApp</a>
+
+<a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=${urlActual}">
+Facebook
+</a>
+
+<a onclick="copiarLink()" href="#">Copiar link</a>
+</div>
+`;
+
+document.getElementById("modalContent").innerHTML = html;
+document.getElementById("modal").style.display="flex";
+
+// 🔥 CARRUSEL
+window.cambiar = function(dir){
+current += dir;
+if(current < 0) current = imagenes.length -1;
+if(current >= imagenes.length) current = 0;
+document.getElementById("img").src = imagenes[current];
+}
+
+}
+
+
+// ❌ cerrar modal
+function cerrar(){
+document.getElementById("modal").style.display="none";
+}
+
+// cerrar clic afuera
+window.onclick = function(e){
+let modal = document.getElementById("modal");
+if(e.target == modal){
+modal.style.display="none";
+}
+}
+
+// 🔥 copiar link
+function copiarLink(){
+navigator.clipboard.writeText(window.location.href);
+alert("Link copiado 🔥");
+}
+
+</script>
+
+</body>
+</html>
