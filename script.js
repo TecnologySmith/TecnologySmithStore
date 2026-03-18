@@ -1,75 +1,181 @@
-// Improved e-commerce functionality for TecnologySmithStore
+let productosData = [];
+let carrito = [];
 
-class Product {
-    constructor(name, price, category) {
-        this.name = name;
-        this.price = price;
-        this.category = category;
-        this.inStock = true;
-    }
+const WEBHOOK = "TU_WEBHOOK_AQUI";
+const LINK_MP = "https://mpago.la/XXXXXXX";
+
+// 🔥 CARGAR PRODUCTOS
+fetch("https://opensheet.elk.sh/1bIcXzZy-yv3Veims11KbIbamG3ruhyspJC0tsCwhge8/Hoja1")
+.then(r=>r.json())
+.then(data=>{
+productosData = data;
+renderProductos(data);
+cargarCategorias(data);
+});
+
+// 🎯 RENDER
+function renderProductos(data){
+let html="";
+
+data.forEach(p=>{
+html+=`
+<div class="product-card">
+<div class="category-badge">${p.categoria}</div>
+<img src="${p.imagen}">
+<h3>${p.nombre}</h3>
+<p>$${p.precio}</p>
+
+<button class="button" onclick="agregarCarrito('${p.id}')">Agregar</button>
+<button class="button" onclick="comprarDirecto('${p.id}')">Comprar</button>
+
+</div>
+`;
+});
+
+document.getElementById("productos").innerHTML=html;
 }
 
-class Cart {
-    constructor() {
-        this.items = [];
-    }
-
-    addItem(product) {
-        if (product.inStock) {
-            this.items.push(product);
-            console.log(`Added ${product.name} to cart.`);
-        } else {
-            console.error(`Error: ${product.name} is out of stock.`);
-        }
-    }
-
-    viewCart() {
-        return this.items;
-    }
-
-    clearCart() {
-        this.items = [];
-        console.log(`Cart has been cleared.`);
-    }
+// 🛒 AGREGAR
+function agregarCarrito(id){
+let p = productosData.find(x=>x.id==id);
+carrito.push(p);
+document.getElementById("count").innerText = carrito.length;
 }
 
-function filterProducts(products, category) {
-    return products.filter(product => product.category === category);
+// 💥 COMPRA DIRECTA
+function comprarDirecto(id){
+let p = productosData.find(x=>x.id==id);
+
+let msg = `🛍️ QUIERO COMPRAR
+Producto: ${p.nombre}
+Categoría: ${p.categoria}
+Precio: $${p.precio}`;
+
+window.open("https://wa.me/573222117202?text="+encodeURIComponent(msg));
 }
 
-function debounce(func, wait) {
-    let timeout;
-    return function(...args) {
-        const later = () => {
-            timeout = null;
-            func.apply(this, args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
+// 🔍 BUSCAR
+document.getElementById("buscar").addEventListener("input",filtrar);
+document.getElementById("filtro").addEventListener("change",filtrar);
+
+function filtrar(){
+let texto = document.getElementById("buscar").value.toLowerCase();
+let cat = document.getElementById("filtro").value;
+
+let filtrados = productosData.filter(p=>{
+return p.nombre.toLowerCase().includes(texto) &&
+(cat=="" || p.categoria==cat);
+});
+
+renderProductos(filtrados);
 }
 
-function setupWhatsAppIntegration(phoneNumber) {
-    const link = `https://wa.me/${phoneNumber}`;
-    console.log(`Chat with us on WhatsApp: ${link}`);
+// 🏷️ CATEGORIAS
+function cargarCategorias(data){
+let categorias = [...new Set(data.map(p=>p.categoria))];
+
+let html=`<option value="">Todas</option>`;
+categorias.forEach(c=>{
+html+=`<option>${c}</option>`;
+});
+
+document.getElementById("filtro").innerHTML=html;
 }
 
-// Sample usage:
-const cart = new Cart();
-const products = [
-    new Product('Laptop', 1200, 'Electronics'),
-    new Product('Headphones', 150, 'Electronics'),
-    new Product('Shoes', 100, 'Fashion')
-];
+// 🛒 VER CARRITO
+function verCarrito(){
 
-const filteredProducts = filterProducts(products, 'Electronics');
-console.log(filteredProducts);
+if(carrito.length==0){
+alert("Carrito vacío");
+return;
+}
 
-cart.addItem(products[0]); // Adding Laptop to cart
-cart.addItem(products[1]); // Adding Headphones to cart
+let total=0;
+let lista="";
 
-const debouncedSearch = debounce((searchTerm) => {
-    console.log(`Searching for: ${searchTerm}`);
-}, 300);
+carrito.forEach(p=>{
+total+=parseInt(p.precio);
+lista+=`${p.nombre} - $${p.precio}\n`;
+});
 
-setupWhatsAppIntegration('1234567890'); // Replace with actual phone number
+let html=`
+<h2>Finalizar compra</h2>
+
+<input id="nombre" placeholder="Nombre">
+<input id="telefono" placeholder="Teléfono">
+<input id="direccion" placeholder="Dirección">
+<textarea id="nota" placeholder="Nota"></textarea>
+
+<pre>${lista}</pre>
+<h3>Total: $${total}</h3>
+
+<button class="button" onclick="finalizarCompra('${encodeURIComponent(lista)}','${total}')">
+Finalizar Pedido
+</button>
+
+<button class="button" onclick="cerrar()">Cancelar</button>
+`;
+
+document.getElementById("modalContent").innerHTML=html;
+document.getElementById("modal").style.display="flex";
+}
+
+// 🔥 FINALIZAR
+function finalizarCompra(lista,total){
+
+let nombre = document.getElementById("nombre").value;
+let telefono = document.getElementById("telefono").value;
+let direccion = document.getElementById("direccion").value;
+let nota = document.getElementById("nota").value;
+
+if(!nombre || !telefono || !direccion){
+alert("Completa todos los campos");
+return;
+}
+
+let mensaje = `🛍️ PEDIDO NUEVO
+
+👤 ${nombre}
+📞 ${telefono}
+📍 ${direccion}
+
+🧾 ${decodeURIComponent(lista)}
+
+💰 Total: $${total}
+
+📝 ${nota}`;
+
+let url = "https://wa.me/573222117202?text=" + encodeURIComponent(mensaje);
+
+// guardar en sheets
+fetch(WEBHOOK,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+nombre,
+telefono,
+direccion,
+productos: decodeURIComponent(lista),
+total,
+nota
+})
+});
+
+// abrir whatsapp
+window.open(url);
+
+// abrir pago
+setTimeout(()=>{
+window.open(LINK_MP);
+},1500);
+
+// limpiar
+carrito=[];
+document.getElementById("count").innerText=0;
+cerrar();
+}
+
+// ❌ cerrar
+function cerrar(){
+document.getElementById("modal").style.display="none";
+}
