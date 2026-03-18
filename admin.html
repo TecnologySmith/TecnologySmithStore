@@ -203,17 +203,14 @@ oferta
 
 console.log("📤 Enviando:", payload);
 
-let res = await fetch(WEBHOOK,{
+await fetch(WEBHOOK,{
 method:"POST",
-headers:{"Content-Type":"application/json"},
+mode:"no-cors",
 body:JSON.stringify(payload)
 });
-
-let text = await res.text();
-
-console.log("✅ Respuesta:", text);
-alert("Respuesta servidor: " + text);
-
+  
+alert("Producto enviado correctamente 🚀");
+  
 setTimeout(()=>cargarProductos(),1500);
 
 }catch(e){
