@@ -25,6 +25,7 @@ html+=`
 <h3>${p.nombre}</h3>
 <p>$${p.precio}</p>
 
+<button class="button" onclick="verDetalles('${p.id}')">Ver detalles</button>
 <button class="button" onclick="agregarCarrito('${p.id}')">Agregar</button>
 <button class="button" onclick="comprarDirecto('${p.id}')">Comprar</button>
 
@@ -178,4 +179,53 @@ cerrar();
 // ❌ cerrar
 function cerrar(){
 document.getElementById("modal").style.display="none";
+}
+
+function verDetalles(id){
+
+let p = productosData.find(x=>x.id==id);
+
+// 🖼️ IMÁGENES
+let imagenes = [p.imagen, p.imagen2, p.imagen3].filter(x=>x && x.trim()!="");
+
+let current = 0;
+
+// 🎯 HTML
+let html = `
+<h2>${p.nombre}</h2>
+
+<div style="position:relative;">
+
+<button onclick="cambiarImg(-1)" style="position:absolute;left:0;top:50%;">❮</button>
+
+<img id="imgDetalle" src="${imagenes[0]}" style="width:100%;max-height:300px;object-fit:contain;">
+
+<button onclick="cambiarImg(1)" style="position:absolute;right:0;top:50%;">❯</button>
+
+</div>
+
+<p>${p.descripcion || "Sin descripción"}</p>
+
+<h3>$${p.precio}</h3>
+
+<button class="button" onclick="agregarCarrito('${p.id}')">Agregar al carrito</button>
+<button class="button" onclick="comprarDirecto('${p.id}')">Comprar</button>
+
+<button class="button" onclick="cerrar()">Cerrar</button>
+`;
+
+// mostrar modal
+document.getElementById("modalContent").innerHTML = html;
+document.getElementById("modal").style.display="flex";
+
+// 🔄 CARRUSEL
+window.cambiarImg = function(dir){
+current += dir;
+
+if(current < 0) current = imagenes.length -1;
+if(current >= imagenes.length) current = 0;
+
+document.getElementById("imgDetalle").src = imagenes[current];
+}
+
 }
