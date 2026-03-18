@@ -1,65 +1,75 @@
-// script.js
+// Improved e-commerce functionality for TecnologySmithStore
 
-// Improved JavaScript code for an e-commerce application
-
-// Error handling
-function handleError(error) {
-    console.error('An error occurred:', error);
+class Product {
+    constructor(name, price, category) {
+        this.name = name;
+        this.price = price;
+        this.category = category;
+        this.inStock = true;
+    }
 }
 
-// Cart management with localStorage
 class Cart {
     constructor() {
-        this.items = JSON.parse(localStorage.getItem('cartItems')) || [];
+        this.items = [];
     }
 
-    addItem(item) {
-        this.items.push(item);
-        this.updateLocalStorage();
+    addItem(product) {
+        if (product.inStock) {
+            this.items.push(product);
+            console.log(`Added ${product.name} to cart.`);
+        } else {
+            console.error(`Error: ${product.name} is out of stock.`);
+        }
     }
 
-    removeItem(itemId) {
-        this.items = this.items.filter(item => item.id !== itemId);
-        this.updateLocalStorage();
+    viewCart() {
+        return this.items;
     }
 
-    updateLocalStorage() {
-        localStorage.setItem('cartItems', JSON.stringify(this.items));
+    clearCart() {
+        this.items = [];
+        console.log(`Cart has been cleared.`);
     }
 }
 
-// Event delegation
-document.addEventListener('click', function (event) {
-    if (event.target.matches('.add-to-cart')) {
-        const item = { id: event.target.dataset.id, name: event.target.dataset.name };
-        cart.addItem(item);
-    }
-});
+function filterProducts(products, category) {
+    return products.filter(product => product.category === category);
+}
 
-// Debouncing for search
-function debounce(func, delay) {
+function debounce(func, wait) {
     let timeout;
     return function(...args) {
+        const later = () => {
+            timeout = null;
+            func.apply(this, args);
+        };
         clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), delay);
+        timeout = setTimeout(later, wait);
     };
 }
 
-const searchInput = document.getElementById('search');
-searchInput.addEventListener('input', debounce(function(event) {
-    const searchTerm = event.target.value;
-    searchItems(searchTerm);
-}, 300));
-
-// Function to search items (implementation can vary)
-function searchItems(term) {
-    console.log('Searching for:', term);
-    // Fetch and display items logic goes here...
+function setupWhatsAppIntegration(phoneNumber) {
+    const link = `https://wa.me/${phoneNumber}`;
+    console.log(`Chat with us on WhatsApp: ${link}`);
 }
 
-// Example of using environment variables or configuration
-const API_URL = process.env.API_URL || 'https://api.example.com';
-console.log('API URL:', API_URL);
-
-// Create an instance of Cart
+// Sample usage:
 const cart = new Cart();
+const products = [
+    new Product('Laptop', 1200, 'Electronics'),
+    new Product('Headphones', 150, 'Electronics'),
+    new Product('Shoes', 100, 'Fashion')
+];
+
+const filteredProducts = filterProducts(products, 'Electronics');
+console.log(filteredProducts);
+
+cart.addItem(products[0]); // Adding Laptop to cart
+cart.addItem(products[1]); // Adding Headphones to cart
+
+const debouncedSearch = debounce((searchTerm) => {
+    console.log(`Searching for: ${searchTerm}`);
+}, 300);
+
+setupWhatsAppIntegration('1234567890'); // Replace with actual phone number
