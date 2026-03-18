@@ -1,21 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Technology Store</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>TecnologySmith Store</title>
+
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="https://i.ibb.co/zTG22YZ4/unnamed.jpg">
+
 </head>
+
 <body>
-    <div id="productos">
-        <!-- Product grid will be populated here -->
+
+<header class="header">
+    <h1>🚀 TecnologySmith Store</h1>
+
+    <div class="search">
+        <input type="text" id="buscar" placeholder="Buscar producto...">
+        <select id="filtro"></select>
     </div>
-    <div id="carrito">
-        <!-- Shopping cart functionality -->
-    </div>
-    <div id="modal">
-        <!-- Modal functionality for product details -->
-    </div>
-    <script src="script.js"></script>
+</header>
+
+<!-- 🛒 CARRITO -->
+<div class="cart" onclick="verCarrito()">
+🛒 <span id="count">0</span>
+</div>
+
+<!-- PRODUCTOS -->
+<div id="productos" class="product-grid"></div>
+
+<!-- MODAL -->
+<div id="modal" class="modal">
+    <div class="modal-content" id="modalContent"></div>
+</div>
+
+<script src="script.js"></script>
+
 </body>
 </html>
