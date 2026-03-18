@@ -6,7 +6,6 @@
 <title>Admin PRO</title>
 
 <style>
-
 body{
 font-family:'Segoe UI';
 background:#0f2027;
@@ -24,7 +23,6 @@ text-align:center;
 padding:15px;
 }
 
-/* LOGIN */
 #login{
 text-align:center;
 margin-top:50px;
@@ -53,11 +51,6 @@ border-radius:10px;
 margin:10px 0;
 }
 
-.actions button{
-margin:3px;
-}
-
-/* TABS */
 .tabs{
 display:flex;
 justify-content:space-around;
@@ -74,7 +67,6 @@ background:#111;
 background:#00f2fe;
 color:black;
 }
-
 </style>
 </head>
 
@@ -84,13 +76,11 @@ color:black;
 <h2>⚙️ Panel Admin</h2>
 </header>
 
-<!-- LOGIN -->
 <div id="login">
 <input type="password" id="pass" placeholder="Contraseña">
 <button onclick="login()">Entrar</button>
 </div>
 
-<!-- PANEL -->
 <div id="panel" style="display:none;">
 
 <div class="tabs">
@@ -100,7 +90,6 @@ color:black;
 
 <div class="container">
 
-<!-- PRODUCTOS -->
 <div id="productos">
 
 <h3>Agregar Producto</h3>
@@ -125,7 +114,6 @@ color:black;
 
 </div>
 
-<!-- PEDIDOS -->
 <div id="pedidos" style="display:none;">
 <h3>Pedidos</h3>
 <div id="listaPedidos"></div>
@@ -138,7 +126,8 @@ color:black;
 
 const PASSWORD = "1234";
 const API_KEY = "85cd8d6c8a475352e7616b5b7e94b686";
-const WEBHOOK = "https://script.google.com/macros/s/AKfycbyLJJHJluAqIfbeapk44PKglF1VYQXz6NGeHauio3-5UA3r2APAqWdDlXfGylv69jc3/exec";
+const WEBHOOK = "https://script.google.com/macros/s/AKfycbwgfTGUMhUUuki1YoyQjectPkF9REbPt8DCFGLU216_gAdRoTAB32XKRIEBSus1LBkQ/exec";
+const SHEET_URL = "https://opensheet.elk.sh/1bIcXzZy-yv3Veims11KbIbamG3ruhyspJC0tsCwhge8/Hoja1";
 
 let productos = [];
 
@@ -156,11 +145,10 @@ cargarPedidos();
 function mostrar(tab){
 document.getElementById("productos").style.display="none";
 document.getElementById("pedidos").style.display="none";
-
 document.getElementById(tab).style.display="block";
 }
 
-// 🖼️ IMG
+// SUBIR IMG
 async function subirImg(file){
 if(!file) return "";
 
@@ -173,17 +161,23 @@ body:fd
 });
 
 let data = await res.json();
+console.log("IMG subida:", data);
+
 return data.data.url;
 }
 
-// 🚀 GUARDAR PRODUCTO
+// GUARDAR PRODUCTO
 async function guardarProducto(){
+
+try{
 
 let nombre = document.getElementById("nombre").value;
 let categoria = document.getElementById("categoria").value;
 let precio = document.getElementById("precio").value;
 let descripcion = document.getElementById("descripcion").value;
 let oferta = document.getElementById("oferta").value;
+
+console.log("📦 Datos:", {nombre, categoria, precio});
 
 let img1 = document.getElementById("img1").files[0];
 let img2 = document.getElementById("img2").files[0];
@@ -193,15 +187,10 @@ let url1 = await subirImg(img1);
 let url2 = await subirImg(img2);
 let url3 = await subirImg(img3);
 
-let id = Date.now();
-
-fetch(WEBHOOK,{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
+let payload = {
 tipo:"producto",
 accion:"crear",
-id,
+id: Date.now(),
 nombre,
 categoria,
 precio,
@@ -210,17 +199,34 @@ imagen2:url2,
 imagen3:url3,
 descripcion,
 oferta
-})
+};
+
+console.log("📤 Enviando:", payload);
+
+let res = await fetch(WEBHOOK,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(payload)
 });
 
-alert("Producto guardado");
-cargarProductos();
+let text = await res.text();
+
+console.log("✅ Respuesta:", text);
+alert("Respuesta servidor: " + text);
+
+setTimeout(()=>cargarProductos(),1500);
+
+}catch(e){
+console.error("❌ ERROR:", e);
+alert("Error: " + e.message);
 }
 
-// 📦 CARGAR PRODUCTOS
+}
+
+// CARGAR PRODUCTOS
 function cargarProductos(){
 
-fetch("https://opensheet.elk.sh/1bIcXzZy-yv3Veims11KbIbamG3ruhyspJC0tsCwhge8/Hoja1")
+fetch(SHEET_URL)
 .then(r=>r.json())
 .then(data=>{
 
@@ -231,11 +237,11 @@ let html="";
 data.forEach(p=>{
 html+=`
 <div class="card">
-${p.nombre} - $${p.precio}
+<b>${p.nombre}</b><br>
+💲 ${p.precio}<br>
+📂 ${p.categoria}<br>
 
-<div class="actions">
 <button onclick="eliminar('${p.id}')">Eliminar</button>
-</div>
 </div>
 `;
 });
@@ -243,9 +249,10 @@ ${p.nombre} - $${p.precio}
 document.getElementById("listaProductos").innerHTML=html;
 
 });
+
 }
 
-// ❌ ELIMINAR
+// ELIMINAR
 function eliminar(id){
 
 fetch(WEBHOOK,{
@@ -259,13 +266,13 @@ id
 });
 
 alert("Eliminado");
-cargarProductos();
+setTimeout(()=>cargarProductos(),1000);
 }
 
-// 📊 PEDIDOS
+// PEDIDOS
 function cargarPedidos(){
 
-fetch("https://opensheet.elk.sh/TU_ID_SHEET/Pedidos")
+fetch("https://opensheet.elk.sh/1bIcXzZy-yv3Veims11KbIbamG3ruhyspJC0tsCwhge8/Pedidos")
 .then(r=>r.json())
 .then(data=>{
 
@@ -274,9 +281,10 @@ let html="";
 data.reverse().forEach(p=>{
 html+=`
 <div class="card">
-👤 ${p.Nombre}<br>
-💰 ${p.Total}<br>
-📦 ${p.Productos}
+👤 ${p.nombre}<br>
+📞 ${p.telefono}<br>
+💰 ${p.total}<br>
+📦 ${p.productos}
 </div>
 `;
 });
