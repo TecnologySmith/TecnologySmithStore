@@ -1,181 +1,55 @@
-let productosData = [];
-let carrito = [];
-
-const WEBHOOK = "https://script.google.com/macros/s/AKfycbyLJJHJluAqIfbeapk44PKglF1VYQXz6NGeHauio3-5UA3r2APAqWdDlXfGylv69jc3/exec";
-const LINK_MP = "https://mpago.la/XXXXXXX";
-
-// 🔥 CARGAR PRODUCTOS
-fetch("https://opensheet.elk.sh/1bIcXzZy-yv3Veims11KbIbamG3ruhyspJC0tsCwhge8/Hoja1")
-.then(r=>r.json())
-.then(data=>{
-productosData = data;
-renderProductos(data);
-cargarCategorias(data);
-});
-
-// 🎯 RENDER
-function renderProductos(data){
-let html="";
-
-data.forEach(p=>{
-html+=`
-<div class="product-card">
-<div class="category-badge">${p.categoria}</div>
-<img src="${p.imagen}">
-<h3>${p.nombre}</h3>
-<p>$${p.precio}</p>
-
-<button class="button" onclick="agregarCarrito('${p.id}')">Agregar</button>
-<button class="button" onclick="comprarDirecto('${p.id}')">Comprar</button>
-
-</div>
-`;
-});
-
-document.getElementById("productos").innerHTML=html;
+function doGet() {
+  return ContentService.createTextOutput("Webhook activo ✅");
 }
 
-// 🛒 AGREGAR
-function agregarCarrito(id){
-let p = productosData.find(x=>x.id==id);
-carrito.push(p);
-document.getElementById("count").innerText = carrito.length;
-}
+function doPost(e) {
 
-// 💥 COMPRA DIRECTA
-function comprarDirecto(id){
-let p = productosData.find(x=>x.id==id);
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Hoja1");
+  const pedidos = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Pedidos");
 
-let msg = `🛍️ QUIERO COMPRAR
-Producto: ${p.nombre}
-Categoría: ${p.categoria}
-Precio: $${p.precio}`;
+  const data = JSON.parse(e.postData.contents);
 
-window.open("https://wa.me/573222117202?text="+encodeURIComponent(msg));
-}
+  Logger.log(data);
 
-// 🔍 BUSCAR
-document.getElementById("buscar").addEventListener("input",filtrar);
-document.getElementById("filtro").addEventListener("change",filtrar);
+  if (data.tipo === "producto") {
 
-function filtrar(){
-let texto = document.getElementById("buscar").value.toLowerCase();
-let cat = document.getElementById("filtro").value;
+    if (data.accion === "crear") {
+      sheet.appendRow([
+        data.id,
+        data.nombre,
+        data.categoria,
+        data.precio,
+        data.imagen,
+        data.imagen2,
+        data.imagen3,
+        data.descripcion,
+        data.oferta
+      ]);
+    }
 
-let filtrados = productosData.filter(p=>{
-return p.nombre.toLowerCase().includes(texto) &&
-(cat=="" || p.categoria==cat);
-});
+    if (data.accion === "eliminar") {
+      const datos = sheet.getDataRange().getValues();
 
-renderProductos(filtrados);
-}
+      for (let i = 1; i < datos.length; i++) {
+        if (datos[i][0] == data.id) {
+          sheet.deleteRow(i + 1);
+          break;
+        }
+      }
+    }
+  }
 
-// 🏷️ CATEGORIAS
-function cargarCategorias(data){
-let categorias = [...new Set(data.map(p=>p.categoria))];
+  if (data.tipo === "pedido") {
+    pedidos.appendRow([
+      new Date(),
+      data.nombre,
+      data.telefono,
+      data.direccion,
+      data.productos,
+      data.total,
+      data.nota
+    ]);
+  }
 
-let html=`<option value="">Todas</option>`;
-categorias.forEach(c=>{
-html+=`<option>${c}</option>`;
-});
-
-document.getElementById("filtro").innerHTML=html;
-}
-
-// 🛒 VER CARRITO
-function verCarrito(){
-
-if(carrito.length==0){
-alert("Carrito vacío");
-return;
-}
-
-let total=0;
-let lista="";
-
-carrito.forEach(p=>{
-total+=parseInt(p.precio);
-lista+=`${p.nombre} - $${p.precio}\n`;
-});
-
-let html=`
-<h2>Finalizar compra</h2>
-
-<input id="nombre" placeholder="Nombre">
-<input id="telefono" placeholder="Teléfono">
-<input id="direccion" placeholder="Dirección">
-<textarea id="nota" placeholder="Nota"></textarea>
-
-<pre>${lista}</pre>
-<h3>Total: $${total}</h3>
-
-<button class="button" onclick="finalizarCompra('${encodeURIComponent(lista)}','${total}')">
-Finalizar Pedido
-</button>
-
-<button class="button" onclick="cerrar()">Cancelar</button>
-`;
-
-document.getElementById("modalContent").innerHTML=html;
-document.getElementById("modal").style.display="flex";
-}
-
-// 🔥 FINALIZAR
-function finalizarCompra(lista,total){
-
-let nombre = document.getElementById("nombre").value;
-let telefono = document.getElementById("telefono").value;
-let direccion = document.getElementById("direccion").value;
-let nota = document.getElementById("nota").value;
-
-if(!nombre || !telefono || !direccion){
-alert("Completa todos los campos");
-return;
-}
-
-let mensaje = `🛍️ PEDIDO NUEVO
-
-👤 ${nombre}
-📞 ${telefono}
-📍 ${direccion}
-
-🧾 ${decodeURIComponent(lista)}
-
-💰 Total: $${total}
-
-📝 ${nota}`;
-
-let url = "https://wa.me/573222117202?text=" + encodeURIComponent(mensaje);
-
-// guardar en sheets
-fetch(WEBHOOK,{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-nombre,
-telefono,
-direccion,
-productos: decodeURIComponent(lista),
-total,
-nota
-})
-});
-
-// abrir whatsapp
-window.open(url);
-
-// abrir pago
-setTimeout(()=>{
-window.open(LINK_MP);
-},1500);
-
-// limpiar
-carrito=[];
-document.getElementById("count").innerText=0;
-cerrar();
-}
-
-// ❌ cerrar
-function cerrar(){
-document.getElementById("modal").style.display="none";
+  return ContentService.createTextOutput("OK");
 }
