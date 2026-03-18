@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin PRO</title>
+
+<style>
+
+body{
+font-family:'Segoe UI';
+background:#0f2027;
+color:white;
+margin:0;
+}
+
+header{
+background:#000;
+padding:15px;
+text-align:center;
+}
+
+.container{
+padding:15px;
+}
+
+/* LOGIN */
+#login{
+text-align:center;
+margin-top:50px;
+}
+
+input, textarea{
+width:100%;
+padding:10px;
+margin:5px 0;
+border-radius:10px;
+border:none;
+}
+
+button{
+padding:10px;
+border:none;
+border-radius:10px;
+background:#00f2fe;
+cursor:pointer;
+}
+
+.card{
+background:rgba(255,255,255,0.05);
+padding:10px;
+border-radius:10px;
+margin:10px 0;
+}
+
+.actions button{
+margin:3px;
+}
+
+/* TABS */
+.tabs{
+display:flex;
+justify-content:space-around;
+margin-top:10px;
+}
+
+.tab{
+cursor:pointer;
+padding:10px;
+background:#111;
+}
+
+.active{
+background:#00f2fe;
+color:black;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h2>⚙️ Panel Admin</h2>
+</header>
+
+<!-- LOGIN -->
+<div id="login">
+<input type="password" id="pass" placeholder="Contraseña">
+<button onclick="login()">Entrar</button>
+</div>
+
+<!-- PANEL -->
+<div id="panel" style="display:none;">
+
+<div class="tabs">
+<div class="tab active" onclick="mostrar('productos')">Productos</div>
+<div class="tab" onclick="mostrar('pedidos')">Pedidos</div>
+</div>
+
+<div class="container">
+
+<!-- PRODUCTOS -->
+<div id="productos">
+
+<h3>Agregar Producto</h3>
+
+<input id="nombre" placeholder="Nombre">
+<input id="categoria" placeholder="Categoría">
+<input id="precio" placeholder="Precio">
+
+<input type="file" id="img1">
+<input type="file" id="img2">
+<input type="file" id="img3">
+
+<textarea id="descripcion" placeholder="Descripción"></textarea>
+<input id="oferta" placeholder="Oferta">
+
+<button onclick="guardarProducto()">Guardar</button>
+
+<hr>
+
+<h3>Lista de Productos</h3>
+<div id="listaProductos"></div>
+
+</div>
+
+<!-- PEDIDOS -->
+<div id="pedidos" style="display:none;">
+<h3>Pedidos</h3>
+<div id="listaPedidos"></div>
+</div>
+
+</div>
+</div>
+
+<script>
+
+const PASSWORD = "1234";
+const API_KEY = "85cd8d6c8a475352e7616b5b7e94b686";
+const WEBHOOK = "TU_WEBHOOK_AQUI";
+
+let productos = [];
+
+// LOGIN
+function login(){
+if(document.getElementById("pass").value === PASSWORD){
+document.getElementById("login").style.display="none";
+document.getElementById("panel").style.display="block";
+cargarProductos();
+cargarPedidos();
+}
+}
+
+// TABS
+function mostrar(tab){
+document.getElementById("productos").style.display="none";
+document.getElementById("pedidos").style.display="none";
+
+document.getElementById(tab).style.display="block";
+}
+
+// 🖼️ IMG
+async function subirImg(file){
+if(!file) return "";
+
+let fd = new FormData();
+fd.append("image", file);
+
+let res = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`,{
+method:"POST",
+body:fd
+});
+
+let data = await res.json();
+return data.data.url;
+}
+
+// 🚀 GUARDAR PRODUCTO
+async function guardarProducto(){
+
+let nombre = document.getElementById("nombre").value;
+let categoria = document.getElementById("categoria").value;
+let precio = document.getElementById("precio").value;
+let descripcion = document.getElementById("descripcion").value;
+let oferta = document.getElementById("oferta").value;
+
+let img1 = document.getElementById("img1").files[0];
+let img2 = document.getElementById("img2").files[0];
+let img3 = document.getElementById("img3").files[0];
+
+let url1 = await subirImg(img1);
+let url2 = await subirImg(img2);
+let url3 = await subirImg(img3);
+
+let id = Date.now();
+
+fetch(WEBHOOK,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+tipo:"producto",
+accion:"crear",
+id,
+nombre,
+categoria,
+precio,
+imagen:url1,
+imagen2:url2,
+imagen3:url3,
+descripcion,
+oferta
+})
+});
+
+alert("Producto guardado");
+cargarProductos();
+}
+
+// 📦 CARGAR PRODUCTOS
+function cargarProductos(){
+
+fetch("https://opensheet.elk.sh/1bIcXzZy-yv3Veims11KbIbamG3ruhyspJC0tsCwhge8/Hoja1")
+.then(r=>r.json())
+.then(data=>{
+
+productos = data;
+
+let html="";
+
+data.forEach(p=>{
+html+=`
+<div class="card">
+${p.nombre} - $${p.precio}
+
+<div class="actions">
+<button onclick="eliminar('${p.id}')">Eliminar</button>
+</div>
+</div>
+`;
+});
+
+document.getElementById("listaProductos").innerHTML=html;
+
+});
+}
+
+// ❌ ELIMINAR
+function eliminar(id){
+
+fetch(WEBHOOK,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+tipo:"producto",
+accion:"eliminar",
+id
+})
+});
+
+alert("Eliminado");
+cargarProductos();
+}
+
+// 📊 PEDIDOS
+function cargarPedidos(){
+
+fetch("https://opensheet.elk.sh/TU_ID_SHEET/Pedidos")
+.then(r=>r.json())
+.then(data=>{
+
+let html="";
+
+data.reverse().forEach(p=>{
+html+=`
+<div class="card">
+👤 ${p.Nombre}<br>
+💰 ${p.Total}<br>
+📦 ${p.Productos}
+</div>
+`;
+});
+
+document.getElementById("listaPedidos").innerHTML=html;
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
