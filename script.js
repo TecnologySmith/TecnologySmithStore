@@ -1,7 +1,7 @@
 let productosData = [];
 let carrito = [];
 
-const WEBHOOK = "https://script.google.com/macros/s/AKfycbwgfTGUMhUUuki1YoyQjectPkF9REbPt8DCFGLU216_gAdRoTAB32XKRIEBSus1LBkQ/exec";
+const WEBHOOK = "https://script.google.com/macros/s/AKfycbyLJJHJluAqIfbeapk44PKglF1VYQXz6NGeHauio3-5UA3r2APAqWdDlXfGylv69jc3/exec";
 const LINK_MP = "https://mpago.la/XXXXXXX";
 
 // 🔥 CARGAR PRODUCTOS
