@@ -1,93 +1,181 @@
-function doGet() {
-  return ContentService
-    .createTextOutput("Webhook activo ✅")
-    .setMimeType(ContentService.MimeType.TEXT);
+let productosData = [];
+let carrito = [];
+
+const WEBHOOK = "TU_WEBHOOK_AQUI";
+const LINK_MP = "https://mpago.la/XXXXXXX";
+
+// 🔥 CARGAR PRODUCTOS
+fetch("https://opensheet.elk.sh/1bIcXzZy-yv3Veims11KbIbamG3ruhyspJC0tsCwhge8/Hoja1")
+.then(r=>r.json())
+.then(data=>{
+productosData = data;
+renderProductos(data);
+cargarCategorias(data);
+});
+
+// 🎯 RENDER
+function renderProductos(data){
+let html="";
+
+data.forEach(p=>{
+html+=`
+<div class="product-card">
+<div class="category-badge">${p.categoria}</div>
+<img src="${p.imagen}">
+<h3>${p.nombre}</h3>
+<p>$${p.precio}</p>
+
+<button class="button" onclick="agregarCarrito('${p.id}')">Agregar</button>
+<button class="button" onclick="comprarDirecto('${p.id}')">Comprar</button>
+
+</div>
+`;
+});
+
+document.getElementById("productos").innerHTML=html;
 }
 
-function doPost(e) {
+// 🛒 AGREGAR
+function agregarCarrito(id){
+let p = productosData.find(x=>x.id==id);
+carrito.push(p);
+document.getElementById("count").innerText = carrito.length;
+}
 
-  try {
+// 💥 COMPRA DIRECTA
+function comprarDirecto(id){
+let p = productosData.find(x=>x.id==id);
 
-    if (!e || !e.postData || !e.postData.contents) {
-      return ContentService.createTextOutput("Error: No data");
-    }
+let msg = `🛍️ QUIERO COMPRAR
+Producto: ${p.nombre}
+Categoría: ${p.categoria}
+Precio: $${p.precio}`;
 
-    const data = JSON.parse(e.postData.contents);
-    Logger.log("DATA RECIBIDA: " + JSON.stringify(data));
+window.open("https://wa.me/573222117202?text="+encodeURIComponent(msg));
+}
 
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName("Hoja1");
-    const pedidos = ss.getSheetByName("Pedidos");
+// 🔍 BUSCAR
+document.getElementById("buscar").addEventListener("input",filtrar);
+document.getElementById("filtro").addEventListener("change",filtrar);
 
-    if (!sheet) {
-      return ContentService.createTextOutput("Error: Hoja1 no existe");
-    }
+function filtrar(){
+let texto = document.getElementById("buscar").value.toLowerCase();
+let cat = document.getElementById("filtro").value;
 
-    // 📦 PRODUCTOS
-    if (data.tipo === "producto") {
+let filtrados = productosData.filter(p=>{
+return p.nombre.toLowerCase().includes(texto) &&
+(cat=="" || p.categoria==cat);
+});
 
-      if (data.accion === "crear") {
+renderProductos(filtrados);
+}
 
-        sheet.appendRow([
-          data.id || "",
-          data.nombre || "",
-          data.categoria || "",
-          data.precio || "",
-          data.imagen || "",
-          data.imagen2 || "",
-          data.imagen3 || "",
-          data.descripcion || "",
-          data.oferta || ""
-        ]);
+// 🏷️ CATEGORIAS
+function cargarCategorias(data){
+let categorias = [...new Set(data.map(p=>p.categoria))];
 
-        Logger.log("Producto agregado correctamente");
+let html=`<option value="">Todas</option>`;
+categorias.forEach(c=>{
+html+=`<option>${c}</option>`;
+});
 
-      }
+document.getElementById("filtro").innerHTML=html;
+}
 
-      if (data.accion === "eliminar") {
+// 🛒 VER CARRITO
+function verCarrito(){
 
-        const datos = sheet.getDataRange().getValues();
+if(carrito.length==0){
+alert("Carrito vacío");
+return;
+}
 
-        for (let i = 1; i < datos.length; i++) {
-          if (datos[i][0] == data.id) {
-            sheet.deleteRow(i + 1);
-            Logger.log("Producto eliminado");
-            break;
-          }
-        }
-      }
-    }
+let total=0;
+let lista="";
 
-    // 🧾 PEDIDOS
-    if (data.tipo === "pedido") {
+carrito.forEach(p=>{
+total+=parseInt(p.precio);
+lista+=`${p.nombre} - $${p.precio}\n`;
+});
 
-      if (!pedidos) {
-        return ContentService.createTextOutput("Error: hoja Pedidos no existe");
-      }
+let html=`
+<h2>Finalizar compra</h2>
 
-      pedidos.appendRow([
-        new Date(),
-        data.nombre || "",
-        data.telefono || "",
-        data.direccion || "",
-        data.productos || "",
-        data.total || "",
-        data.nota || ""
-      ]);
+<input id="nombre" placeholder="Nombre">
+<input id="telefono" placeholder="Teléfono">
+<input id="direccion" placeholder="Dirección">
+<textarea id="nota" placeholder="Nota"></textarea>
 
-      Logger.log("Pedido guardado");
-    }
+<pre>${lista}</pre>
+<h3>Total: $${total}</h3>
 
-    return ContentService
-      .createTextOutput("OK")
-      .setMimeType(ContentService.MimeType.TEXT);
+<button class="button" onclick="finalizarCompra('${encodeURIComponent(lista)}','${total}')">
+Finalizar Pedido
+</button>
 
-  } catch (error) {
+<button class="button" onclick="cerrar()">Cancelar</button>
+`;
 
-    Logger.log("ERROR: " + error);
+document.getElementById("modalContent").innerHTML=html;
+document.getElementById("modal").style.display="flex";
+}
 
-    return ContentService
-      .createTextOutput("Error: " + error)
-      .setMimeType(ContentService.MimeType.TEXT);
-  }
+// 🔥 FINALIZAR
+function finalizarCompra(lista,total){
+
+let nombre = document.getElementById("nombre").value;
+let telefono = document.getElementById("telefono").value;
+let direccion = document.getElementById("direccion").value;
+let nota = document.getElementById("nota").value;
+
+if(!nombre || !telefono || !direccion){
+alert("Completa todos los campos");
+return;
+}
+
+let mensaje = `🛍️ PEDIDO NUEVO
+
+👤 ${nombre}
+📞 ${telefono}
+📍 ${direccion}
+
+🧾 ${decodeURIComponent(lista)}
+
+💰 Total: $${total}
+
+📝 ${nota}`;
+
+let url = "https://wa.me/573222117202?text=" + encodeURIComponent(mensaje);
+
+// guardar en sheets
+fetch(WEBHOOK,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+nombre,
+telefono,
+direccion,
+productos: decodeURIComponent(lista),
+total,
+nota
+})
+});
+
+// abrir whatsapp
+window.open(url);
+
+// abrir pago
+setTimeout(()=>{
+window.open(LINK_MP);
+},1500);
+
+// limpiar
+carrito=[];
+document.getElementById("count").innerText=0;
+cerrar();
+}
+
+// ❌ cerrar
+function cerrar(){
+document.getElementById("modal").style.display="none";
 }
