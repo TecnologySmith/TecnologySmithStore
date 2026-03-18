@@ -1,15 +1,50 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Your Store</title>
-</head>
-<body>
-    <div id="app">
-        <!-- Store content here -->
-    </div>
-    <script src="script.js"></script>
-</body>
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Store</title>  
+    <link rel="stylesheet" href="styles.css">  
+</head>  
+<body>  
+    <header role="banner">  
+        <h1>Welcome to Our Store</h1>  
+        <nav role="navigation">  
+            <ul>  
+                <li><a href="#">Home</a></li>  
+                <li><a href="#shop">Shop</a></li>  
+                <li><a href="#about">About</a></li>  
+                <li><a href="#contact">Contact</a></li>  
+            </ul>  
+        </nav>  
+    </header>  
+    <main role="main">  
+        <section id="shop" aria-labelledby="shop-heading">  
+            <h2 id="shop-heading">Shop Our Products</h2>  
+            <div class="product">  
+                <h3>Product Title</h3>  
+                <p>Description of the product.</p>  
+                <button aria-label="Add Product Title to cart">Add to Cart</button>  
+            </div>  
+            <!-- More products can be added here -->  
+        </section>  
+        <aside id="cart" role="complementary">  
+            <h2>Your Shopping Cart</h2>  
+            <div id="cart-items">  
+                <p>No items in cart.</p>  
+            </div>  
+        </aside>  
+    </main>  
+    <div id="modal" role="dialog" aria-labelledby="modal-title" aria-hidden="true">  
+        <h2 id="modal-title">Product Title</h2>  
+        <p>Product details go here.</p>  
+        <button aria-label="Close this dialog">Close</button>  
+    </div>  
+    <footer role="contentinfo">  
+        <p>&copy; 2026 TecnologySmith. All rights reserved.</p>  
+        <address>  
+            <a href="mailto:support@tecnologysmith.com">Contact Us</a>  
+        </address>  
+    </footer>  
+</body>  
 </html>
