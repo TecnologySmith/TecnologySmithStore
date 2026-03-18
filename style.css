@@ -109,6 +109,15 @@ border-radius:10px;
 border:none;
 }
 
+.modal-content img{
+border-radius:10px;
+background:#fff;
+}
+
+.modal-content button{
+margin:5px;
+}
+
 /* RESPONSIVE */
 @media(max-width:600px){
 .product-card img{height:150px;}
