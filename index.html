@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TecnologySmith Store | Premium Tech</title>
+    <title>TecnologySmith Store | Premium</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="https://i.ibb.co/zTG22YZ4/unnamed.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -11,14 +11,10 @@
 <body>
 
 <header class="header">
-    <div class="header-content">
-        <h1>🚀 TecnologySmith Store</h1>
-        <div class="search-container">
-            <input type="text" id="buscar" placeholder="¿Qué estás buscando hoy?">
-            <select id="filtro">
-                <option value="">Todas las categorías</option>
-            </select>
-        </div>
+    <h1>🚀 TecnologySmith Store</h1>
+    <div class="search-container">
+        <input type="text" id="buscar" placeholder="Buscar producto...">
+        <select id="filtro"><option value="">Todas</option></select>
     </div>
 </header>
 
@@ -26,16 +22,14 @@
     <a href="https://tecnologysmith.github.io/plataformas.html/">Streaming</a>
     <a href="https://tecnologysmith.github.io/Peliculas_Melgar.html/">Películas Melgar</a>
     <a href="https://tecnologysmith.github.io/pagina_web_gratis_2/">Web Gratis</a>
-    <a href="#contacto">Contacto</a>
 </nav>
 
 <div class="cart-floating" onclick="verCarrito()">
-    <span class="cart-icon">🛒</span>
-    <span id="count" class="cart-badge">0</span>
+    🛒 <span id="count" class="cart-badge">0</span>
 </div>
 
 <main>
-    <div id="loader" class="loader">Cargando productos de última tecnología...</div>
+    <div id="loader" class="loader">Iniciando sistemas...</div>
     <div id="productos" class="product-grid"></div>
 </main>
 
