@@ -148,14 +148,88 @@ function cargarCategorias(data) {
     });
 }
 
+// 🔥 NUEVA FUNCIÓN VER DETALLES CORREGIDA
 function verDetalles(id) {
     const p = productosData.find(x => x.id == id);
-    document.getElementById("modalContent").innerHTML = `
-        <img src="${p.imagen}" style="width:100%; border-radius:15px; background:#fff; margin-bottom:15px;">
-        <h2>${p.nombre}</h2>
-        <p style="opacity:0.8">${p.descripcion || 'Producto de alta calidad garantizado.'}</p>
-        <h3 style="color:var(--primary)">${formatter.format(p.precio)}</h3>
-        <button class="button btn-primary" onclick="agregarCarrito('${p.id}')">Agregar al carrito</button>
+    if (!p) return;
+
+    // 🖼️ GESTIÓN DE IMÁGENES (Obtenemos todas las disponibles)
+    // Asumimos que en tu Excel las columnas se llaman: imagen, imagen2, imagen3
+    const imagenes = [p.imagen, p.imagen2, p.imagen3].filter(x => x && x.trim() !== "");
+    let currentIndex = 0;
+
+    // 🎯 Generar HTML del Modal
+    let html = `
+        <div class="detalles-container">
+            <div class="carrusel-container">
+                <img id="imgDetalle" src="${imagenes[0]}" alt="${p.nombre}" class="img-principal-detalle">
+                
+                ${imagenes.length > 1 ? `
+                    <button class="carrusel-btn prev" id="btnPrev">❮</button>
+                    <button class="carrusel-btn next" id="btnNext">❯</button>
+                    <div class="carrusel-indicador"><span id="currentImg">1</span> / ${imagenes.length}</div>
+                ` : ''}
+            </div>
+
+            <div class="info-container">
+                <span class="category-badge" style="position:static; display:inline-block; margin-bottom:10px;">${p.categoria}</span>
+                <h2 class="detalle-titulo">${p.nombre}</h2>
+                <p class="detalle-descripcion">${p.descripcion || 'Producto de alta tecnología seleccionado por TecnologySmith Store.'}</p>
+                <h3 class="detalle-precio">${currency.format(p.precio)}</h3>
+                
+                <div class="acciones-detalle">
+                    <button class="button btn-buy" onclick="comprarAhora('${p.id}')">Comprar Ahora</button>
+                    <button class="button btn-cart" onclick="agregar('${p.id}')">Añadir al Carrito</button>
+                </div>
+            </div>
+        </div>
     `;
-    abrirModal();
+
+    // Insertar y abrir modal
+    const modalContent = document.getElementById("modalContent");
+    modalContent.innerHTML = html;
+    document.getElementById("modal").style.display = "flex";
+
+    // ⚙️ LÓGICA DEL CARRUSEL (Inyectada tras renderizar el HTML)
+    if (imagenes.length > 1) {
+        const imgElement = document.getElementById("imgDetalle");
+        const currentTxt = document.getElementById("currentImg");
+
+        const cambiarImagen = (direccion) => {
+            currentIndex += direccion;
+            
+            // Lógica circular (Ingeniero, esto es clave)
+            if (currentIndex < 0) currentIndex = imagenes.length - 1;
+            if (currentIndex >= imagenes.length) currentIndex = 0;
+
+            // Actualizar DOM con efecto suave
+            imgElement.style.opacity = 0;
+            setTimeout(() => {
+                imgElement.src = imagenes[currentIndex];
+                currentTxt.innerText = currentIndex + 1;
+                imgElement.style.opacity = 1;
+            }, 150);
+        };
+
+        // Asignar eventos a los botones
+        document.getElementById("btnPrev").addEventListener("click", () => cambiarImagen(-1));
+        document.getElementById("btnNext").addEventListener("click", () => cambiarImagen(1));
+        
+        // Soporte para teclado (Opcional, muy Pro)
+        const handleKeyDown = (e) => {
+            if (document.getElementById("modal").style.display === "flex") {
+                if (e.key === "ArrowLeft") cambiarImagen(-1);
+                if (e.key === "ArrowRight") cambiarImagen(1);
+            }
+        };
+        document.addEventListener("keydown", handleKeyDown);
+        
+        // Limpiar evento al cerrar el modal para no saturar memoria
+        const originalCerrar = window.cerrar;
+        window.cerrar = () => {
+            document.removeEventListener("keydown", handleKeyDown);
+            originalCerrar();
+            window.cerrar = originalCerrar; // Restaurar función original
+        };
+    }
 }
