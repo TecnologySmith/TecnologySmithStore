@@ -1,188 +1,221 @@
-:root {
-    --primary: #00f2fe;
-    --secondary: #4facfe;
-    --bg-dark: #0f2027;
-    --glass: rgba(255, 255, 255, 0.08);
+body{
+
+margin:0;
+
+font-family:'Segoe UI';
+
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+
+color:white;
+
 }
 
-body {
-    margin: 0; font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    background-attachment: fixed; color: white;
+
+
+.header{
+
+text-align:center;
+
+padding:20px;
+
 }
 
-.header { padding: 30px; text-align: center; }
-.search-container { max-width: 500px; margin: 15px auto; display: flex; gap: 10px; padding: 0 15px; }
-.search-container input, .search-container select {
-    flex: 1; padding: 12px; border-radius: 10px; border: none; background: var(--glass); color: white;
-}
 
-.main-nav { display: flex; justify-content: center; gap: 15px; padding: 15px; background: rgba(0,0,0,0.3); }
-.main-nav a { color: white; text-decoration: none; font-size: 0.85rem; opacity: 0.8; }
 
-.product-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 20px; padding: 20px; max-width: 1200px; margin: 0 auto;
-}
+ nav {
 
-.product-card {
-    background: var(--glass); padding: 20px; border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.1); text-align: center;
-    transition: 0.3s; position: relative;
-}
-.product-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.12); }
-.product-card img { width: 100%; height: 180px; object-fit: contain; }
+      display: flex;
 
-.category-badge {
-    position: absolute; top: 10px; left: 10px; background: var(--primary);
-    color: black; padding: 3px 10px; border-radius: 15px; font-size: 11px; font-weight: bold;
-}
+      justify-content: space-between;
 
-.button {
-    width: 100%; padding: 10px; margin-top: 8px; border: none; border-radius: 12px;
-    cursor: pointer; font-weight: 600; transition: 0.2s;
-}
-.btn-buy { background: linear-gradient(45deg, #00f2fe, #4facfe); color: white; }
-.btn-cart { background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--primary); }
-.btn-details { background: transparent; color: #aaa; font-size: 0.8rem; }
+      padding: 0 24px;
 
-.cart-floating {
-    position: fixed; bottom: 20px; right: 20px; background: white; color: black;
-    width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center;
-    justify-content: center; cursor: pointer; z-index: 99; font-size: 20px;
-}
-.cart-badge {
-    position: absolute; top: -5px; right: -5px; background: red; color: white;
-    font-size: 11px; padding: 3px 7px; border-radius: 50%;
-}
+      border-bottom: 1px solid var(--very-light-pink);
 
-.modal-overlay {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 1000;
-    justify-content: center; align-items: center;
-}
-.modal-card {
-    background: #151515; padding: 25px; border-radius: 20px; width: 90%;
-    max-width: 450px; position: relative; border: 1px solid #333;
-}
-.close-modal { position: absolute; top: 10px; right: 15px; background: none; border: none; color: white; font-size: 25px; cursor: pointer; }
-
-input, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #333; background: #000; color: white; box-sizing: border-box; }
-.loader { text-align: center; padding: 40px; }
-
-/* =========================================
-   NUEVOS ESTILOS RESPONSIVOS PARA DETALLES
-   ========================================= */
-
-/* Ajuste general del modal para permitir scroll si el contenido es muy alto */
-.modal-card {
-    max-height: 90vh; /* Máximo 90% del alto de la pantalla */
-    overflow-y: auto; /* Scroll vertical interno si es necesario */
-    display: flex;
-    flex-direction: column;
-}
-
-/* Contenedor principal de detalles (Flex para hacerlo responsivo) */
-.detalles-container {
-    display: flex;
-    flex-direction: column; /* Por defecto en columna (móvil) */
-    gap: 20px;
-    color: white;
-}
-
-/* --- Estilos del Carrusel --- */
-.carrusel-container {
-    position: relative;
-    width: 100%;
-    /* Mantenemos una relación de aspecto cuadrada para la imagen en móvil */
-    aspect-ratio: 1 / 1; 
-    background: #fff; /* Fondo blanco para imágenes transparentes */
-    border-radius: 15px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.img-principal-detalle {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain; /* Ajusta la imagen sin recortarla */
-    transition: opacity 0.2s ease;
-}
-
-/* Botones del carrusel */
-.carrusel-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.5);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    font-size: 18px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.3s;
-    z-index: 10;
-}
-
-.carrusel-btn:hover { background: var(--primary); color: black; }
-.carrusel-btn.prev { left: 10px; }
-.carrusel-btn.next { right: 10px; }
-
-.carrusel-indicador {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.6);
-    padding: 4px 10px;
-    border-radius: 10px;
-    font-size: 12px;
-}
-
-/* --- Estilos de Información --- */
-.info-container {
-    display: flex;
-    flex-direction: column;
-}
-
-.detalle-titulo { margin: 0 0 10px 0; font-size: 1.5rem; }
-.detalle-descripcion { font-size: 0.9rem; opacity: 0.8; line-height: 1.4; margin-bottom: 15px; }
-.detalle-precio { color: var(--primary); margin: 0 0 20px 0; font-size: 1.4rem; }
-
-.acciones-detalle {
-    margin-top: auto; /* Empuja los botones al fondo */
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-/* =========================================
-   MEDIA QUERY PARA ESCRITORIO (Responsive Pro)
-   ========================================= */
-@media (min-width: 768px) {
-    .modal-card {
-        max-width: 700px; /* Modal más ancho en PC */
     }
-    
-    .detalles-container {
-        flex-direction: row; /* Imagen a la izquierda, info a la derecha */
-        align-items: flex-start;
-    }
-    
-    .carrusel-container {
-        flex: 1; /* Toma el 50% del ancho */
-        max-width: 320px; /* Limitamos el ancho de la imagen */
-    }
-    
-    .info-container {
-        flex: 1; /* Toma el otro 50% */
-        padding-left: 10px;
-    }
+
 }
+
+nav a { 
+
+  color: white; 
+
+  text-decoration: none; 
+
+  font-weight: bold; 
+
+}
+
+
+
+  @media (max-width: 640px) {
+
+      .menu {
+
+        display: block;
+
+      }
+
+      .navbar-left ul {
+
+        display: none;
+
+      }
+
+      .navbar-email {
+
+        display: none;
+
+      }
+
+    }
+
+  
+
+
+
+.search{
+
+margin-top:10px;
+
+}
+
+
+
+.search input, .search select{
+
+padding:10px;
+
+border-radius:10px;
+
+border:none;
+
+margin:5px;
+
+}
+
+
+
+/* GRID */
+
+.product-grid{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+gap:15px;
+
+padding:15px;
+
+}
+
+
+
+/* CARD */
+
+.product-card{
+
+background:rgba(255,255,255,0.05);
+
+backdrop-filter:blur(10px);
+
+padding:15px;
+
+border-radius:15px;
+
+transition:0.3s;
+
+}
+
+
+
+.product-card:hover{
+
+transform:scale(1.05);
+
+}
+
+
+
+.product-card img{
+
+width:100%;
+
+height:180px;
+
+object-fit:contain;
+
+}
+
+
+
+/* BADGE */
+
+.category-badge{
+
+background:#00f2fe;
+
+color:black;
+
+padding:3px 10px;
+
+border-radius:20px;
+
+font-size:12px;
+
+}
+
+
+
+/* BOTON */
+
+.button{
+
+display:block;
+
+margin-top:8px;
+
+padding:10px;
+
+border:none;
+
+border-radius:20px;
+
+cursor:pointer;
+
+background:linear-gradient(45deg,#00f2fe,#4facfe);
+
+color:white;
+
+}
+
+
+
+/* CARRITO */
+
+.cart{
+
+position:fixed;
+
+top:10px;
+
+right:10px;
+
+background:black;
+
+padding:10px;
+
+border-radius:20px;
+
+cursor:pointer;
+
+}
+
+
+
+/* MODAL */
+
+.modal{
+
+display:none;
