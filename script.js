@@ -1,241 +1,161 @@
 let productosData = [];
-let carrito = [];
+let carrito = JSON.parse(localStorage.getItem('carrito_smith')) || [];
 
-const WEBHOOK = "TU_WEBHOOK_AQUI";
-const LINK_MP = "https://mpago.la/XXXXXXX";
+const CONFIG = {
+    WEBHOOK: "TU_WEBHOOK_AQUI",
+    LINK_MP: "https://mpago.la/XXXXXXX",
+    WHATSAPP: "573222117202",
+    SHEET_URL: "https://opensheet.elk.sh/1bIcXzZy-yv3Veims11KbIbamG3ruhyspJC0tsCwhge8/Hoja1"
+};
 
-// 🔥 CARGAR PRODUCTOS
-fetch("https://opensheet.elk.sh/1bIcXzZy-yv3Veims11KbIbamG3ruhyspJC0tsCwhge8/Hoja1")
-.then(r=>r.json())
-.then(data=>{
-productosData = data;
-renderProductos(data);
-cargarCategorias(data);
+// Formateador de moneda (Ingeniero, esto da mucha clase)
+const formatter = new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    minimumFractionDigits: 0
 });
 
-// 🎯 RENDER
-function renderProductos(data){
-let html="";
-
-data.forEach(p=>{
-html+=`
-<div class="product-card">
-<div class="category-badge">${p.categoria}</div>
-<img src="${p.imagen}">
-<h3>${p.nombre}</h3>
-<p>$${p.precio}</p>
-
-<button class="button" onclick="verDetalles('${p.id}')">Ver detalles</button>
-<button class="button" onclick="agregarCarrito('${p.id}')">Agregar</button>
-<button class="button" onclick="comprarProducto('${p.id}')">Comprar</button>
-
-</div>
-`;
+// 🔥 INICIO
+document.addEventListener("DOMContentLoaded", () => {
+    actualizarContador();
+    fetchProductos();
 });
 
-document.getElementById("productos").innerHTML=html;
+async function fetchProductos() {
+    try {
+        const response = await fetch(CONFIG.SHEET_URL);
+        productosData = await response.json();
+        document.getElementById("loader").style.display = "none";
+        renderProductos(productosData);
+        cargarCategorias(productosData);
+    } catch (error) {
+        console.error("Error cargando datos:", error);
+        document.getElementById("loader").innerText = "Error al conectar con la base de datos.";
+    }
 }
 
-// 🛒 AGREGAR
-function agregarCarrito(id){
-let p = productosData.find(x=>x.id==id);
-carrito.push(p);
-document.getElementById("count").innerText = carrito.length;
+function renderProductos(data) {
+    const contenedor = document.getElementById("productos");
+    contenedor.innerHTML = data.map(p => `
+        <div class="product-card">
+            <span class="category-badge">${p.categoria}</span>
+            <img src="${p.imagen}" alt="${p.nombre}" loading="lazy">
+            <h3>${p.nombre}</h3>
+            <p class="price">${formatter.format(p.precio)}</p>
+            <button class="button btn-outline" onclick="verDetalles('${p.id}')">Detalles</button>
+            <button class="button btn-primary" onclick="agregarCarrito('${p.id}')">🛒 Agregar</button>
+        </div>
+    `).join('');
 }
 
-// 💥 COMPRA DIRECTA
-function comprarDirecto(id){
-let p = productosData.find(x=>x.id==id);
-
-let msg = `🛍️ QUIERO COMPRAR
-Producto: ${p.nombre}
-Categoría: ${p.categoria}
-Precio: $${p.precio}`;
-
-window.open("https://wa.me/573222117202?text="+encodeURIComponent(msg));
+function agregarCarrito(id) {
+    const p = productosData.find(x => x.id == id);
+    carrito.push(p);
+    saveAndSync();
+    
+    // Feedback visual rápido
+    const btn = event.target;
+    const originalText = btn.innerText;
+    btn.innerText = "¡Añadido! ✅";
+    setTimeout(() => btn.innerText = originalText, 1500);
 }
 
-// 🔍 BUSCAR
-document.getElementById("buscar").addEventListener("input",filtrar);
-document.getElementById("filtro").addEventListener("change",filtrar);
-
-function filtrar(){
-let texto = document.getElementById("buscar").value.toLowerCase();
-let cat = document.getElementById("filtro").value;
-
-let filtrados = productosData.filter(p=>{
-return p.nombre.toLowerCase().includes(texto) &&
-(cat=="" || p.categoria==cat);
-});
-
-renderProductos(filtrados);
+function saveAndSync() {
+    localStorage.setItem('carrito_smith', JSON.stringify(carrito));
+    actualizarContador();
 }
 
-// 🏷️ CATEGORIAS
-function cargarCategorias(data){
-let categorias = [...new Set(data.map(p=>p.categoria))];
-
-let html=`<option value="">Todas</option>`;
-categorias.forEach(c=>{
-html+=`<option>${c}</option>`;
-});
-
-document.getElementById("filtro").innerHTML=html;
+function actualizarContador() {
+    document.getElementById("count").innerText = carrito.length;
 }
 
-// 🛒 VER CARRITO
-function verCarrito(){
+function verCarrito() {
+    if (carrito.length === 0) return alert("El carrito está vacío, Ingeniero.");
 
-if(carrito.length==0){
-alert("Carrito vacío");
-return;
+    let total = carrito.reduce((sum, p) => sum + parseInt(p.precio), 0);
+    let listaStr = carrito.map(p => `• ${p.nombre} (${formatter.format(p.precio)})`).join('\n');
+
+    document.getElementById("modalContent").innerHTML = `
+        <h2 style="color:var(--primary)">Confirmar Pedido</h2>
+        <div style="max-height: 200px; overflow-y: auto; margin-bottom: 20px; font-size: 0.9rem;">
+            ${carrito.map(p => `<p>✅ ${p.nombre} - <b>${formatter.format(p.precio)}</b></p>`).join('')}
+        </div>
+        <hr style="opacity:0.2">
+        <h3>Total: ${formatter.format(total)}</h3>
+        <input id="form-nombre" placeholder="Nombre completo">
+        <input id="form-tel" placeholder="WhatsApp">
+        <textarea id="form-nota" placeholder="Notas adicionales del pedido..."></textarea>
+        <button class="button btn-primary" onclick="finalizarCompra()">Confirmar y Pagar</button>
+        <button class="button" style="background:transparent" onclick="vaciarCarrito()">Vaciar Carrito</button>
+    `;
+    abrirModal();
 }
 
-let total=0;
-let lista="";
+function finalizarCompra() {
+    const nombre = document.getElementById("form-nombre").value;
+    const tel = document.getElementById("form-tel").value;
+    const nota = document.getElementById("form-nota").value;
 
-carrito.forEach(p=>{
-total+=parseInt(p.precio);
-lista+=`${p.nombre} - $${p.precio}\n`;
-});
+    if (!nombre || !tel) return alert("Por favor complete sus datos");
 
-let html=`
-<h2>Finalizar compra</h2>
+    const total = carrito.reduce((sum, p) => sum + parseInt(p.precio), 0);
+    const lista = carrito.map(p => p.nombre).join(', ');
 
-<input id="nombre" placeholder="Nombre">
-<input id="telefono" placeholder="Teléfono">
-<input id="direccion" placeholder="Dirección">
-<textarea id="nota" placeholder="Nota"></textarea>
+    const mensaje = `*NUEVO PEDIDO - TecnologySmith*%0A%0A👤 *Cliente:* ${nombre}%0A📞 *Tel:* ${tel}%0A🧾 *Items:* ${lista}%0A💰 *Total:* ${formatter.format(total)}%0A📝 *Nota:* ${nota}`;
 
-<pre>${lista}</pre>
-<h3>Total: $${total}</h3>
+    // Enviar a WhatsApp
+    window.open(`https://wa.me/${CONFIG.WHATSAPP}?text=${mensaje}`);
 
-<button class="button" onclick="finalizarCompra('${encodeURIComponent(lista)}','${total}')">
-Finalizar Pedido
-</button>
-
-<button class="button" onclick="cerrar()">Cancelar</button>
-`;
-
-document.getElementById("modalContent").innerHTML=html;
-document.getElementById("modal").style.display="flex";
+    // Limpiar
+    vaciarCarrito();
+    cerrar();
+    
+    // Abrir link de pago tras breve delay
+    setTimeout(() => window.open(CONFIG.LINK_MP), 2000);
 }
 
-// 🔥 FINALIZAR
-function finalizarCompra(lista,total){
-
-let nombre = document.getElementById("nombre").value;
-let telefono = document.getElementById("telefono").value;
-let direccion = document.getElementById("direccion").value;
-let nota = document.getElementById("nota").value;
-
-if(!nombre || !telefono || !direccion){
-alert("Completa todos los campos");
-return;
+function vaciarCarrito() {
+    carrito = [];
+    saveAndSync();
+    cerrar();
 }
 
-let mensaje = `🛍️ PEDIDO NUEVO
+// FUNCIONES DE MODAL
+function abrirModal() { document.getElementById("modal").style.display = "flex"; }
+function cerrar() { document.getElementById("modal").style.display = "none"; }
 
-👤 ${nombre}
-📞 ${telefono}
-📍 ${direccion}
+// FILTROS
+document.getElementById("buscar").addEventListener("input", filtrar);
+document.getElementById("filtro").addEventListener("change", filtrar);
 
-🧾 ${decodeURIComponent(lista)}
+function filtrar() {
+    const texto = document.getElementById("buscar").value.toLowerCase();
+    const cat = document.getElementById("filtro").value;
 
-💰 Total: $${total}
-
-📝 ${nota}`;
-
-let url = "https://wa.me/573222117202?text=" + encodeURIComponent(mensaje);
-
-// guardar en sheets
-fetch(WEBHOOK,{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-nombre,
-telefono,
-direccion,
-productos: decodeURIComponent(lista),
-total,
-nota
-})
-});
-
-// abrir whatsapp
-window.open(url);
-
-// abrir pago
-setTimeout(()=>{
-window.open(LINK_MP);
-},1500);
-
-// limpiar
-carrito=[];
-document.getElementById("count").innerText=0;
-cerrar();
+    const filtrados = productosData.filter(p => 
+        p.nombre.toLowerCase().includes(texto) && (cat === "" || p.categoria === cat)
+    );
+    renderProductos(filtrados);
 }
 
-// ❌ cerrar
-function cerrar(){
-document.getElementById("modal").style.display="none";
+function cargarCategorias(data) {
+    const categorias = [...new Set(data.map(p => p.categoria))];
+    const select = document.getElementById("filtro");
+    categorias.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = opt.innerText = c;
+        select.appendChild(opt);
+    });
 }
 
-function verDetalles(id){
-
-let p = productosData.find(x=>x.id==id);
-
-// 🖼️ IMÁGENES
-let imagenes = [p.imagen, p.imagen2, p.imagen3].filter(x=>x && x.trim()!="");
-
-let current = 0;
-
-// 🎯 HTML
-let html = `
-<h2>${p.nombre}</h2>
-
-<div style="position:relative;">
-
-<button onclick="cambiarImg(-1)" style="position:absolute;left:0;top:50%;">❮</button>
-
-<img id="imgDetalle" src="${imagenes[0]}" style="width:100%;max-height:300px;object-fit:contain;">
-
-<button onclick="cambiarImg(1)" style="position:absolute;right:0;top:50%;">❯</button>
-
-</div>
-
-<p>${p.descripcion || "Sin descripción"}</p>
-
-<h3>$${p.precio}</h3>
-
-<button class="button" onclick="agregarCarrito('${p.id}')">Agregar al carrito</button>
-<button class="button" onclick="comprarProducto('${p.id}')">Comprar</button>
-
-<button class="button" onclick="cerrar()">Cerrar</button>
-`;
-
-// mostrar modal
-document.getElementById("modalContent").innerHTML = html;
-document.getElementById("modal").style.display="flex";
-
-// 🔄 CARRUSEL
-window.cambiarImg = function(dir){
-current += dir;
-
-if(current < 0) current = imagenes.length -1;
-if(current >= imagenes.length) current = 0;
-
-document.getElementById("imgDetalle").src = imagenes[current];
-}
-
-}
-
-function comprarProducto(id){
-
-let p = productosData.find(x=>x.id==id);
-
-carrito = [p]; // 🔥 carrito con solo ese producto
-
-verCarrito(); // 🔥 abre el mismo flujo
-
+function verDetalles(id) {
+    const p = productosData.find(x => x.id == id);
+    document.getElementById("modalContent").innerHTML = `
+        <img src="${p.imagen}" style="width:100%; border-radius:15px; background:#fff; margin-bottom:15px;">
+        <h2>${p.nombre}</h2>
+        <p style="opacity:0.8">${p.descripcion || 'Producto de alta calidad garantizado.'}</p>
+        <h3 style="color:var(--primary)">${formatter.format(p.precio)}</h3>
+        <button class="button btn-primary" onclick="agregarCarrito('${p.id}')">Agregar al carrito</button>
+    `;
+    abrirModal();
 }
