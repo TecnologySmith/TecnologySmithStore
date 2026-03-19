@@ -1,71 +1,139 @@
-:root {
-    --primary: #00f2fe;
-    --secondary: #4facfe;
-    --bg-dark: #0f2027;
-    --glass: rgba(255, 255, 255, 0.08);
+let productosData = [];
+let carrito = JSON.parse(localStorage.getItem('smith_cart')) || [];
+
+const CONFIG = {
+    WEBHOOK: "TU_WEBHOOK_AQUI",
+    LINK_MP: "https://mpago.la/XXXXXXX",
+    WHATSAPP: "573222117202",
+    SHEET: "https://opensheet.elk.sh/1bIcXzZy-yv3Veims11KbIbamG3ruhyspJC0tsCwhge8/Hoja1"
+};
+
+const currency = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 });
+
+document.addEventListener("DOMContentLoaded", () => {
+    actualizarBadge();
+    fetch(CONFIG.SHEET).then(r => r.json()).then(data => {
+        productosData = data;
+        render(data);
+        loadCats(data);
+        document.getElementById("loader").style.display = "none";
+    });
+});
+
+function render(data) {
+    document.getElementById("productos").innerHTML = data.map(p => `
+        <div class="product-card">
+            <span class="category-badge">${p.categoria}</span>
+            <img src="${p.imagen}">
+            <h4>${p.nombre}</h4>
+            <p style="color:var(--primary)">${currency.format(p.precio)}</p>
+            <button class="button btn-details" onclick="verDetalles('${p.id}')">Ver detalles</button>
+            <button class="button btn-cart" onclick="agregar('${p.id}')">Añadir al Carrito</button>
+            <button class="button btn-buy" onclick="comprarAhora('${p.id}')">Comprar Ahora</button>
+        </div>
+    `).join('');
 }
 
-body {
-    margin: 0; font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    background-attachment: fixed; color: white;
+function agregar(id) {
+    const p = productosData.find(x => x.id == id);
+    carrito.push(p);
+    localStorage.setItem('smith_cart', JSON.stringify(carrito));
+    actualizarBadge();
 }
 
-.header { padding: 30px; text-align: center; }
-.search-container { max-width: 500px; margin: 15px auto; display: flex; gap: 10px; padding: 0 15px; }
-.search-container input, .search-container select {
-    flex: 1; padding: 12px; border-radius: 10px; border: none; background: var(--glass); color: white;
+function actualizarBadge() { document.getElementById("count").innerText = carrito.length; }
+
+// 🔥 COMPRA DIRECTA (Como lo pediste, Ingeniero)
+function comprarAhora(id) {
+    const p = productosData.find(x => x.id == id);
+    carrito = [p]; // Sobreescribimos el carrito temporalmente con este ítem
+    actualizarBadge();
+    verCarrito(); // Abrimos el flujo de pago
 }
 
-.main-nav { display: flex; justify-content: center; gap: 15px; padding: 15px; background: rgba(0,0,0,0.3); }
-.main-nav a { color: white; text-decoration: none; font-size: 0.85rem; opacity: 0.8; }
+function verCarrito() {
+    if (carrito.length === 0) return alert("El carrito está vacío.");
+    
+    let total = carrito.reduce((s, p) => s + parseInt(p.precio), 0);
+    let listaHTML = carrito.map(p => `<div style="display:flex; justify-content:space-between; font-size:13px; margin:5px 0;">
+        <span>${p.nombre}</span><span>${currency.format(p.precio)}</span>
+    </div>`).join('');
 
-.product-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 20px; padding: 20px; max-width: 1200px; margin: 0 auto;
-}
-
-.product-card {
-    background: var(--glass); padding: 20px; border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.1); text-align: center;
-    transition: 0.3s; position: relative;
-}
-.product-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.12); }
-.product-card img { width: 100%; height: 180px; object-fit: contain; }
-
-.category-badge {
-    position: absolute; top: 10px; left: 10px; background: var(--primary);
-    color: black; padding: 3px 10px; border-radius: 15px; font-size: 11px; font-weight: bold;
-}
-
-.button {
-    width: 100%; padding: 10px; margin-top: 8px; border: none; border-radius: 12px;
-    cursor: pointer; font-weight: 600; transition: 0.2s;
-}
-.btn-buy { background: linear-gradient(45deg, #00f2fe, #4facfe); color: white; }
-.btn-cart { background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--primary); }
-.btn-details { background: transparent; color: #aaa; font-size: 0.8rem; }
-
-.cart-floating {
-    position: fixed; bottom: 20px; right: 20px; background: white; color: black;
-    width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center;
-    justify-content: center; cursor: pointer; z-index: 99; font-size: 20px;
-}
-.cart-badge {
-    position: absolute; top: -5px; right: -5px; background: red; color: white;
-    font-size: 11px; padding: 3px 7px; border-radius: 50%;
+    document.getElementById("modalContent").innerHTML = `
+        <h3 style="margin-top:0">Finalizar Pedido</h3>
+        <div style="background:#000; padding:10px; border-radius:10px; margin-bottom:15px;">
+            ${listaHTML}
+            <hr style="opacity:0.1">
+            <div style="display:flex; justify-content:space-between; font-weight:bold;">
+                <span>Total:</span><span>${currency.format(total)}</span>
+            </div>
+        </div>
+        <input id="f-nom" placeholder="Tu nombre">
+        <input id="f-tel" placeholder="Tu WhatsApp">
+        <input id="f-dir" placeholder="Dirección de entrega">
+        <textarea id="f-nota" placeholder="Nota adicional..."></textarea>
+        <button class="button btn-buy" onclick="confirmarPedido(${total})">Enviar Pedido</button>
+        <button class="button" style="background:transparent; color:#666" onclick="cerrar()">Cancelar</button>
+    `;
+    document.getElementById("modal").style.display = "flex";
 }
 
-.modal-overlay {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 1000;
-    justify-content: center; align-items: center;
-}
-.modal-card {
-    background: #151515; padding: 25px; border-radius: 20px; width: 90%;
-    max-width: 450px; position: relative; border: 1px solid #333;
-}
-.close-modal { position: absolute; top: 10px; right: 15px; background: none; border: none; color: white; font-size: 25px; cursor: pointer; }
+function confirmarPedido(total) {
+    const nom = document.getElementById("f-nom").value;
+    const tel = document.getElementById("f-tel").value;
+    const dir = document.getElementById("f-dir").value;
+    const nota = document.getElementById("f-nota").value;
 
-input, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #333; background: #000; color: white; box-sizing: border-box; }
-.loader { text-align: center; padding: 40px; }
+    if (!nom || !tel || !dir) return alert("Por favor, Ingeniero Smith, complete los campos obligatorios.");
+
+    const listaTxt = carrito.map(p => `• ${p.nombre} (${currency.format(p.precio)})`).join('\n');
+    const msg = `🛍️ *NUEVO PEDIDO*%0A%0A👤 *Nombre:* ${nom}%0A📞 *Tel:* ${tel}%0A📍 *Dir:* ${dir}%0A%0A📦 *Productos:*%0A${listaTxt}%0A%0A💰 *TOTAL:* ${currency.format(total)}%0A📝 *Nota:* ${nota}`;
+
+    // Webhook de Sheets
+    fetch(CONFIG.WEBHOOK, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre: nom, telefono: tel, direccion: dir, productos: listaTxt, total: total })
+    });
+
+    window.open(`https://wa.me/${CONFIG.WHATSAPP}?text=${encodeURIComponent(decodeURIComponent(msg))}`);
+    
+    setTimeout(() => window.open(CONFIG.LINK_MP), 2000);
+
+    carrito = [];
+    localStorage.removeItem('smith_cart');
+    actualizarBadge();
+    cerrar();
+}
+
+function verDetalles(id) {
+    const p = productosData.find(x => x.id == id);
+    document.getElementById("modalContent").innerHTML = `
+        <img src="${p.imagen}" style="width:100%; border-radius:10px; background:white;">
+        <h2 style="margin:15px 0 5px 0">${p.nombre}</h2>
+        <p style="font-size:14px; opacity:0.7">${p.descripcion || 'Sin descripción disponible.'}</p>
+        <h3 style="color:var(--primary)">${currency.format(p.precio)}</h3>
+        <button class="button btn-buy" onclick="comprarAhora('${p.id}')">Comprar Ahora</button>
+        <button class="button btn-cart" onclick="agregar('${p.id}')">Agregar al Carrito</button>
+    `;
+    document.getElementById("modal").style.display = "flex";
+}
+
+function cerrar() { document.getElementById("modal").style.display = "none"; }
+
+// Filtros básicos
+function loadCats(data) {
+    const cats = [...new Set(data.map(p => p.categoria))];
+    const sel = document.getElementById("filtro");
+    cats.forEach(c => { let o = document.createElement("option"); o.innerText = c; sel.appendChild(o); });
+}
+
+function filtrar() {
+    const txt = document.getElementById("buscar").value.toLowerCase();
+    const cat = document.getElementById("filtro").value;
+    const filtered = productosData.filter(p => p.nombre.toLowerCase().includes(txt) && (cat === "" || p.categoria === cat));
+    render(filtered);
+}
+document.getElementById("buscar").addEventListener("input", filtrar);
+document.getElementById("filtro").addEventListener("change", filtrar);
