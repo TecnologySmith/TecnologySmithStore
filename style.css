@@ -10,6 +10,10 @@ text-align:center;
 padding:20px;
 }
 
+nav { background-color: #444; display: flex; justify-content: center; gap: 2rem; padding: 0.5rem 0; }
+nav a { color: white; text-decoration: none; font-weight: bold; }
+  
+
 .search{
 margin-top:10px;
 }
