@@ -1,150 +1,90 @@
-body{
-margin:0;
-font-family:'Segoe UI';
-background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-color:white;
+:root {
+    --primary: #00f2fe;
+    --secondary: #4facfe;
+    --accent: #f093fb;
+    --bg-dark: #0f2027;
+    --glass: rgba(255, 255, 255, 0.08);
+    --text: #ffffff;
 }
 
-.header{
-text-align:center;
-padding:20px;
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    background-attachment: fixed;
+    color: var(--text);
 }
 
- nav {
-      display: flex;
-      justify-content: space-between;
-      padding: 0 24px;
-      border-bottom: 1px solid var(--very-light-pink);
-    }
-}
-nav a { 
-  color: white; 
-  text-decoration: none; 
-  font-weight: bold; 
+/* Header & Nav */
+.header { padding: 40px 20px; text-align: center; }
+.search-container { max-width: 600px; margin: 20px auto; display: flex; gap: 10px; }
+
+.search-container input, .search-container select {
+    flex: 1; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
+    background: var(--glass); color: white; outline: none;
 }
 
-  @media (max-width: 640px) {
-      .menu {
-        display: block;
-      }
-      .navbar-left ul {
-        display: none;
-      }
-      .navbar-email {
-        display: none;
-      }
-    }
-  
+.main-nav {
+    display: flex; justify-content: center; gap: 20px; padding: 15px;
+    background: rgba(0,0,0,0.2); backdrop-filter: blur(5px);
+}
+.main-nav a { color: white; text-decoration: none; font-weight: 500; font-size: 0.9rem; transition: 0.3s; }
+.main-nav a:hover { color: var(--primary); }
 
-.search{
-margin-top:10px;
+/* Product Grid */
+.product-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 25px; padding: 30px; max-width: 1200px; margin: 0 auto;
 }
 
-.search input, .search select{
-padding:10px;
-border-radius:10px;
-border:none;
-margin:5px;
+.product-card {
+    background: var(--glass); border: 1px solid rgba(255,255,255,0.1);
+    padding: 20px; border-radius: 20px; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative; overflow: hidden;
+}
+.product-card:hover { transform: translateY(-10px); background: rgba(255,255,255,0.12); }
+
+.product-card img { width: 100%; height: 200px; object-fit: contain; margin-bottom: 15px; }
+
+.category-badge {
+    position: absolute; top: 15px; left: 15px; background: var(--primary);
+    color: #000; padding: 4px 12px; border-radius: 30px; font-size: 11px; font-weight: bold;
 }
 
-/* GRID */
-.product-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:15px;
-padding:15px;
+/* Buttons */
+.button {
+    width: 100%; padding: 12px; border: none; border-radius: 12px;
+    cursor: pointer; font-weight: 600; transition: 0.3s; margin-bottom: 8px;
+}
+.btn-primary { background: linear-gradient(45deg, var(--primary), var(--secondary)); color: #fff; }
+.btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+.button:hover { filter: brightness(1.1); transform: scale(1.02); }
+
+/* Cart Badge */
+.cart-floating {
+    position: fixed; bottom: 30px; right: 30px; z-index: 100;
+    background: white; color: black; width: 60px; height: 60px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+.cart-badge {
+    position: absolute; top: -5px; right: -5px; background: #ff4757;
+    color: white; font-size: 12px; padding: 4px 8px; border-radius: 50%;
 }
 
-/* CARD */
-.product-card{
-background:rgba(255,255,255,0.05);
-backdrop-filter:blur(10px);
-padding:15px;
-border-radius:15px;
-transition:0.3s;
+/* Modal */
+.modal-overlay {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 1000;
+    justify-content: center; align-items: center;
+}
+.modal-card {
+    background: #1a1a1a; padding: 30px; border-radius: 25px;
+    width: 90%; max-width: 500px; position: relative; border: 1px solid rgba(255,255,255,0.1);
+}
+.close-modal {
+    position: absolute; top: 15px; right: 20px; background: none; border: none;
+    color: white; font-size: 30px; cursor: pointer;
 }
 
-.product-card:hover{
-transform:scale(1.05);
-}
-
-.product-card img{
-width:100%;
-height:180px;
-object-fit:contain;
-}
-
-/* BADGE */
-.category-badge{
-background:#00f2fe;
-color:black;
-padding:3px 10px;
-border-radius:20px;
-font-size:12px;
-}
-
-/* BOTON */
-.button{
-display:block;
-margin-top:8px;
-padding:10px;
-border:none;
-border-radius:20px;
-cursor:pointer;
-background:linear-gradient(45deg,#00f2fe,#4facfe);
-color:white;
-}
-
-/* CARRITO */
-.cart{
-position:fixed;
-top:10px;
-right:10px;
-background:black;
-padding:10px;
-border-radius:20px;
-cursor:pointer;
-}
-
-/* MODAL */
-.modal{
-display:none;
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.8);
-justify-content:center;
-align-items:center;
-}
-
-.modal-content{
-background:#111;
-padding:20px;
-border-radius:15px;
-width:90%;
-max-width:400px;
-}
-
-input, textarea{
-width:100%;
-margin:5px 0;
-padding:10px;
-border-radius:10px;
-border:none;
-}
-
-.modal-content img{
-border-radius:10px;
-background:#fff;
-}
-
-.modal-content button{
-margin:5px;
-}
-
-/* RESPONSIVE */
-@media(max-width:600px){
-.product-card img{height:150px;}
-}
+.loader { text-align: center; padding: 50px; font-size: 1.2rem; opacity: 0.7; }
