@@ -27,7 +27,7 @@ html+=`
 
 <button class="button" onclick="verDetalles('${p.id}')">Ver detalles</button>
 <button class="button" onclick="agregarCarrito('${p.id}')">Agregar</button>
-<button class="button" onclick="comprarDirecto('${p.id}')">Comprar</button>
+<button class="button" onclick="comprarProducto('${p.id}')">Comprar</button>
 
 </div>
 `;
@@ -227,5 +227,15 @@ if(current >= imagenes.length) current = 0;
 
 document.getElementById("imgDetalle").src = imagenes[current];
 }
+
+}
+
+function comprarProducto(id){
+
+let p = productosData.find(x=>x.id==id);
+
+carrito = [p]; // 🔥 carrito con solo ese producto
+
+verCarrito(); // 🔥 abre el mismo flujo
 
 }
