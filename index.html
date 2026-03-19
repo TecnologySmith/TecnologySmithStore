@@ -1,48 +1,51 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>TecnologySmith Store</title>
-
-<link rel="stylesheet" href="style.css">
-<link rel="icon" href="https://i.ibb.co/zTG22YZ4/unnamed.jpg">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TecnologySmith Store | Premium Tech</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="https://i.ibb.co/zTG22YZ4/unnamed.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
 
 <header class="header">
-    <h1>🚀 TecnologySmith Store</h1>
-
-    <div class="search">
-        <input type="text" id="buscar" placeholder="Buscar producto...">
-        <select id="filtro"></select>
+    <div class="header-content">
+        <h1>🚀 TecnologySmith Store</h1>
+        <div class="search-container">
+            <input type="text" id="buscar" placeholder="¿Qué estás buscando hoy?">
+            <select id="filtro">
+                <option value="">Todas las categorías</option>
+            </select>
+        </div>
     </div>
 </header>
 
- <nav>
-     <a href="https://tecnologysmith.github.io/plataformas.html/">Plataformas Streaming</a>
+<nav class="main-nav">
+    <a href="https://tecnologysmith.github.io/plataformas.html/">Streaming</a>
     <a href="https://tecnologysmith.github.io/Peliculas_Melgar.html/">Películas Melgar</a>
-    <a href="https://tecnologysmith.github.io/pagina_web_gratis_2/">Solicita tu pagina Web (grartis)</a>
+    <a href="https://tecnologysmith.github.io/pagina_web_gratis_2/">Web Gratis</a>
     <a href="#contacto">Contacto</a>
-  </nav>
+</nav>
 
-<!-- 🛒 CARRITO -->
-<div class="cart" onclick="verCarrito()">
-🛒 <span id="count">0</span>
+<div class="cart-floating" onclick="verCarrito()">
+    <span class="cart-icon">🛒</span>
+    <span id="count" class="cart-badge">0</span>
 </div>
 
-<!-- PRODUCTOS -->
-<div id="productos" class="product-grid"></div>
+<main>
+    <div id="loader" class="loader">Cargando productos de última tecnología...</div>
+    <div id="productos" class="product-grid"></div>
+</main>
 
-<!-- MODAL -->
-<div id="modal" class="modal">
-    <div class="modal-content" id="modalContent"></div>
+<div id="modal" class="modal-overlay">
+    <div class="modal-card">
+        <button class="close-modal" onclick="cerrar()">×</button>
+        <div id="modalContent"></div>
+    </div>
 </div>
 
 <script src="script.js"></script>
-
 </body>
 </html>
