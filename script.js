@@ -209,7 +209,7 @@ let html = `
 <h3>$${p.precio}</h3>
 
 <button class="button" onclick="agregarCarrito('${p.id}')">Agregar al carrito</button>
-<button class="button" onclick="finalizarCompra('${p.id}')">Comprar</button>
+<button class="button" onclick="comprarProducto('${p.id}')">Comprar</button>
 
 <button class="button" onclick="cerrar()">Cerrar</button>
 `;
