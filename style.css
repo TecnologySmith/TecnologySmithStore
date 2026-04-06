@@ -1,268 +1,273 @@
- :root {
-            /* Palette */
-            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            --accent-color: #38bdf8;
-            --accent-gradient: linear-gradient(45deg, #00f2fe, #4facfe);
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            
-            /* Transitions */
-            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+:root {
+    /* Paleta de colores: Define variables para reutilizar en todo el sitio */
+    --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); /* Fondo principal oscuro */
+    --accent-color: #38bdf8; /* Azul claro para acentos */
+    --accent-gradient: linear-gradient(45deg, #00f2fe, #4facfe); /* Degradado para botones y títulos */
+    --glass-bg: rgba(255, 255, 255, 0.03); /* Fondo tipo cristal (transparente) */
+    --glass-border: rgba(255, 255, 255, 0.1); /* Borde sutil para el efecto cristal */
+    --text-main: #f8fafc; /* Color de texto principal (casi blanco) */
+    --text-muted: #94a3b8; /* Color de texto secundario (grisáceo) */
+    --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); /* Sombra para dar profundidad a las tarjetas */
+    
+    /* Transiciones: Suaviza las animaciones de hover y clics */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+* {
+    margin: 0; /* Elimina márgenes por defecto del navegador */
+    padding: 0; /* Elimina paddings por defecto */
+    box-sizing: border-box; /* Asegura que el padding no afecte el ancho total de los elementos */
+}
 
-        body {
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: var(--bg-gradient);
-            background-attachment: fixed;
-            color: var(--text-main);
-            line-height: 1.6;
-            min-height: 100vh;
-        }
+body {
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif; /* Tipografía moderna */
+    background: var(--bg-gradient); /* Aplica el degradado de fondo definido en :root */
+    background-attachment: fixed; /* Mantiene el fondo quieto mientras se hace scroll */
+    color: var(--text-main); /* Aplica color de texto por defecto */
+    line-height: 1.6; /* Mejora la legibilidad del texto */
+    min-height: 100vh; /* Asegura que el cuerpo ocupe al menos el alto de la pantalla */
+}
 
-        /* HEADER & NAV */
-        .header {
-            text-align: center;
-            padding: 40px 20px;
-        }
+/* HEADER & NAV */
+.header {
+    text-align: center; /* Centra el texto del encabezado */
+    padding: 40px 20px; /* Espaciado interno */
+}
 
-        .header h1 {
-            font-size: 2.5rem;
-            letter-spacing: -1px;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-        }
+.header h1 {
+    font-size: 2.5rem; /* Tamaño de fuente grande */
+    letter-spacing: -1px; /* Junta un poco las letras para estilo moderno */
+    background: var(--accent-gradient); /* Aplica el degradado al fondo del texto */
+    -webkit-background-clip: text; /* Truco CSS: recorta el fondo con la forma de la letra */
+    -webkit-text-fill-color: transparent; /* Hace el texto transparente para mostrar el degradado */
+    margin-bottom: 10px; /* Espacio inferior */
+}
 
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 5%;
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 1px solid var(--glass-border);
-        }
+nav {
+    display: flex; /* Activa Flexbox para alinear elementos */
+    justify-content: space-between; /* Separa el logo de los links */
+    align-items: center; /* Centra verticalmente los elementos */
+    padding: 15px 5%; /* Espaciado lateral del 5% para pantallas anchas */
+    background: rgba(15, 23, 42, 0.8); /* Fondo oscuro semitransparente */
+    backdrop-filter: blur(10px); /* Efecto de desenfoque detrás de la barra (Glassmorphism) */
+    position: sticky; /* Se queda pegado al subir la página */
+    top: 0; /* Posición pegada al borde superior */
+    z-index: 1000; /* Asegura que esté por encima de otros elementos */
+    border-bottom: 1px solid var(--glass-border); /* Línea divisoria sutil */
+}
 
-        .navbar-left ul {
-            display: flex;
-            list-style: none;
-            gap: 25px;
-        }
+.navbar-left ul {
+    display: flex; /* Pone los links en fila */
+    list-style: none; /* Quita los puntos de la lista */
+    gap: 25px; /* Espacio uniforme entre links */
+}
 
-        nav a {
-            color: var(--text-main);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.95rem;
-            transition: var(--transition-smooth);
-            opacity: 0.8;
-        }
+nav a {
+    color: var(--text-main); /* Color del link */
+    text-decoration: none; /* Quita el subrayado */
+    font-weight: 500; /* Grosor de letra medio */
+    font-size: 0.95rem; /* Tamaño de letra */
+    transition: var(--transition-smooth); /* Animación suave al pasar el mouse */
+    opacity: 0.8; /* Ligeramente opaco por defecto */
+}
 
-        nav a:hover {
-            color: var(--accent-color);
-            opacity: 1;
-        }
+nav a:hover {
+    color: var(--accent-color); /* Cambia color al azul de acento */
+    opacity: 1; /* Se vuelve totalmente brillante */
+}
 
-        /* SEARCH BAR */
-        .search-container {
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+/* SEARCH BAR */
+.search-container {
+    display: flex; /* Flexbox para alinear inputs */
+    justify-content: center; /* Centra la barra de búsqueda */
+    padding: 20px; /* Espaciado */
+    gap: 10px; /* Espacio entre input y select */
+    flex-wrap: wrap; /* En celulares pequeños los elementos se ponen uno bajo otro */
+}
 
-        .search-container input, 
-        .search-container select {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            padding: 12px 20px;
-            border-radius: 12px;
-            color: white;
-            outline: none;
-            transition: var(--transition-smooth);
-        }
+.search-container input, 
+.search-container select {
+    background: var(--glass-bg); /* Fondo transparente */
+    border: 1px solid var(--glass-border); /* Borde sutil */
+    padding: 12px 20px; /* Espaciado interno cómodo */
+    border-radius: 12px; /* Esquinas redondeadas */
+    color: white; /* Color de letra */
+    outline: none; /* Quita el borde azul por defecto al hacer clic */
+    transition: var(--transition-smooth); /* Animación suave */
+}
 
-        .search-container input:focus {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
-            background: rgba(255, 255, 255, 0.07);
-        }
+.search-container input:focus {
+    border-color: var(--accent-color); /* Borde azul al escribir */
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); /* Resplandor exterior */
+    background: rgba(255, 255, 255, 0.07); /* Fondo un poco más claro al escribir */
+}
 
-        /* PRODUCT GRID */
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 25px;
-            padding: 30px 5%;
-        }
+/* PRODUCT GRID */
+.product-grid {
+    display: grid; /* Activa el sistema de rejilla */
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); /* Crea columnas automáticas de min 260px */
+    gap: 25px; /* Espacio entre tarjetas */
+    padding: 30px 5%; /* Espaciado lateral */
+}
 
-        /* PRODUCT CARD */
-        .product-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            padding: 20px;
-            border-radius: 24px;
-            transition: var(--transition-smooth);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
-        }
+/* PRODUCT CARD */
+.product-card {
+    background: var(--glass-bg); /* Fondo cristalino */
+    backdrop-filter: blur(12px); /* Desenfoque de fondo */
+    -webkit-backdrop-filter: blur(12px); /* Soporte para Safari */
+    border: 1px solid var(--glass-border); /* Borde cristal */
+    padding: 20px; /* Espacio interno de la tarjeta */
+    border-radius: 24px; /* Esquinas muy redondeadas (Moderno) */
+    transition: var(--transition-smooth); /* Suaviza el efecto hover */
+    display: flex; /* ACTIVA FLEXBOX PARA LA TARJETA */
+    flex-direction: column; /* ALINEA LOS HIJOS EN VERTICAL */
+    position: relative; /* Para posicionar el gradiente decorativo */
+    overflow: hidden; /* Corta cualquier contenido que se salga de la esquina redondeada */
+    min-height: 480px; /* Asegura que todas las tarjetas tengan un alto mínimo similar */
+}
 
-        .product-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.1), transparent);
-            pointer-events: none;
-        }
+/* Gradiente decorativo superior en la tarjeta */
+.product-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.1), transparent);
+    pointer-events: none; /* No interfiere con los clics */
+}
 
-        .product-card:hover {
-            transform: translateY(-10px);
-            border-color: rgba(56, 189, 248, 0.4);
-            box-shadow: var(--card-shadow);
-        }
+.product-card:hover {
+    transform: translateY(-10px); /* La tarjeta sube un poco al pasar el mouse */
+    border-color: rgba(56, 189, 248, 0.4); /* Resalta el borde */
+    box-shadow: var(--card-shadow); /* Aplica la sombra definida en :root */
+}
 
-        .product-card img {
-            width: 100%;
-            height: 220px;
-            object-fit: contain;
-            margin-bottom: 15px;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));
-            transition: var(--transition-smooth);
-        }
+/* IMÁGENES DENTRO DE LA TARJETA */
+.product-card img {
+    width: 100%; /* Ocupa todo el ancho disponible */
+    height: 220px; /* ALTURA FIJA PARA QUE TODAS LAS IMÁGENES SE VEAN IGUAL */
+    object-fit: contain; /* ¡CLAVE! MANTIENE LA IMAGEN COMPLETA SIN RECORTARLA */
+    margin-bottom: 15px; /* Espacio bajo la imagen */
+    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3)); /* Sombra a la imagen (no al recuadro) */
+    transition: var(--transition-smooth); /* Animación para el zoom */
+    background-color: rgba(0,0,0,0.1); /* Fondo leve por si la imagen es transparente */
+    border-radius: 12px; /* Redondea un poco los bordes de la imagen */
+}
 
-        .product-card:hover img {
-            transform: scale(1.1);
-        }
+.product-card:hover img {
+    transform: scale(1.05); /* Zoom sutil a la imagen al hacer hover */
+}
 
-        .product-info h3 {
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-        }
+.product-info h3 {
+    font-size: 1.1rem; /* Tamaño del título del negocio */
+    margin-bottom: 8px; /* Espacio inferior */
+}
 
-        .price {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--accent-color);
-            margin: 10px 0;
-        }
+.price {
+    font-size: 1.4rem; /* Tamaño del precio/info */
+    font-weight: 700; /* Texto en negrita */
+    color: var(--accent-color); /* Color azul acento */
+    margin: 10px 0; /* Margen superior e inferior */
+}
 
-        /* BADGE */
-        .category-badge {
-            display: inline-block;
-            background: rgba(56, 189, 248, 0.15);
-            color: var(--accent-color);
-            padding: 4px 12px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 10px;
-        }
+/* BADGE / CATEGORÍA */
+.category-badge {
+    display: inline-block; /* Se ajusta al contenido */
+    background: rgba(56, 189, 248, 0.15); /* Fondo azul tenue */
+    color: var(--accent-color); /* Texto azul */
+    padding: 4px 12px; /* Espaciado del badge */
+    border-radius: 8px; /* Redondeado del badge */
+    font-size: 0.75rem; /* Letra pequeña */
+    font-weight: 600; /* Seminegrita */
+    text-transform: uppercase; /* Todo en mayúsculas */
+    letter-spacing: 0.5px; /* Espacio entre letras */
+    margin-bottom: 10px; /* Espacio bajo el badge */
+}
 
-        /* BUTTON */
-        .button {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 14px;
-            cursor: pointer;
-            background: var(--accent-gradient);
-            color: #0f172a;
-            font-weight: 700;
-            font-size: 0.9rem;
-            transition: var(--transition-smooth);
-            margin-top: auto;
-        }
+/* BOTÓN DE "MÁS INFORMACIÓN" */
+.button {
+    width: 100%; /* Ocupa todo el ancho de la tarjeta */
+    padding: 12px; /* Espaciado interno */
+    border: none; /* Quita borde por defecto */
+    border-radius: 14px; /* Esquinas redondeadas */
+    cursor: pointer; /* Cambia el cursor a mano */
+    background: var(--accent-gradient); /* Aplica el degradado azul */
+    color: #0f172a; /* Color de texto oscuro para contraste */
+    font-weight: 700; /* Texto en negrita */
+    font-size: 0.9rem; /* Tamaño de fuente */
+    transition: var(--transition-smooth); /* Animación suave */
+    margin-top: auto; /* ¡CLAVE! EMPUJA EL BOTÓN AL FINAL DE LA TARJETA AUTOMÁTICAMENTE */
+}
 
-        .button:hover {
-            filter: brightness(1.1);
-            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.4);
-        }
+.button:hover {
+    filter: brightness(1.1); /* Brilla un poco más al pasar el mouse */
+    box-shadow: 0 4px 15px rgba(0, 242, 254, 0.4); /* Sombra de neón */
+}
 
-        .button:active {
-            transform: scale(0.97);
-        }
+.button:active {
+    transform: scale(0.97); /* Se hunde un poco al hacer clic */
+}
 
-        /* FLOATING CART */
-        .cart-trigger {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: var(--text-main);
-            color: #0f172a;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            transition: var(--transition-smooth);
-            z-index: 999;
-        }
+/* FLOATING CART (Carrito Flotante) */
+.cart-trigger {
+    position: fixed; /* Posición fija en la pantalla */
+    bottom: 30px; /* Distancia desde abajo */
+    right: 30px; /* Distancia desde la derecha */
+    background: var(--text-main); /* Fondo blanco/claro */
+    color: #0f172a; /* Icono oscuro */
+    width: 60px; /* Ancho del círculo */
+    height: 60px; /* Alto del círculo */
+    border-radius: 50%; /* Hace el elemento circular */
+    display: flex; /* Centra el contenido */
+    align-items: center; 
+    justify-content: center;
+    cursor: pointer; /* Mano al pasar el mouse */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5); /* Sombra pesada */
+    transition: var(--transition-smooth); /* Animación */
+    z-index: 999; /* Por encima de casi todo */
+}
 
-        .cart-trigger:hover {
-            transform: scale(1.1) rotate(-10deg);
-        }
+.cart-trigger:hover {
+    transform: scale(1.1) rotate(-10deg); /* Se agranda y gira un poco al hover */
+}
 
-        .cart-count {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: #ef4444;
-            color: white;
-            font-size: 0.7rem;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #0f172a;
-        }
+.cart-count {
+    position: absolute; /* Posicionado respecto al círculo */
+    top: 0;
+    right: 0;
+    background: #ef4444; /* Rojo para notificaciones */
+    color: white; /* Texto blanco */
+    font-size: 0.7rem; /* Letra pequeña */
+    width: 20px; /* Tamaño del círculo de cuenta */
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #0f172a; /* Borde oscuro para resaltar */
+}
 
-        /* MOBILE RESPONSIVENESS */
-        @media (max-width: 640px) {
-            .navbar-left ul, .navbar-email {
-                display: none;
-            }
-            
-            .header h1 {
-                font-size: 1.8rem;
-            }
+/* MOBILE RESPONSIVENESS (Ajustes para celulares) */
+@media (max-width: 640px) {
+    .navbar-left ul, .navbar-email {
+        display: none; /* Oculta el menú normal en móviles (podría usarse un menú hamburguesa) */
+    }
+    
+    .header h1 {
+        font-size: 1.8rem; /* Título más pequeño en móviles */
+    }
 
-            .product-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+    .product-grid {
+        grid-template-columns: 1fr; /* Una sola tarjeta por fila en móviles */
+    }
+}
 
-        /* MODAL PREVIEW */
-        .modal {
-            display: none; /* Se activaría con JS */
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(5px);
-            z-index: 2000;
-            place-items: center;
-        }
+/* MODAL PREVIEW (Estilos para ventanas emergentes) */
+.modal {
+    display: none; /* Se oculta por defecto hasta que JS lo active */
+    position: fixed;
+    inset: 0; /* Cubre toda la pantalla */
+    background: rgba(0,0,0,0.8); /* Fondo negro semitransparente */
+    backdrop-filter: blur(5px); /* Desenfoque del fondo */
+    z-index: 2000; /* Encima de todo */
+    place-items: center; /* Centra el contenido del modal */
+}
