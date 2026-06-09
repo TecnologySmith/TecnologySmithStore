@@ -1,298 +1,656 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin PRO</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — TecnologySmith Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --black:      #080c14;
+      --surface:    #0d1526;
+      --surface-2:  #111d35;
+      --border:     rgba(255,255,255,0.07);
+      --border-h:   rgba(99,211,255,0.35);
+      --cyan:       #63d3ff;
+      --cyan-dim:   rgba(99,211,255,0.1);
+      --green:      #2ecc71;
+      --red:        #ef4444;
+      --text:       #eef2ff;
+      --muted:      #8896b3;
+      --dim:        #4a5a78;
+      --ease: cubic-bezier(.4,0,.2,1);
+    }
 
-<style>
-body{
-font-family:'Segoe UI';
-background:#0f2027;
-color:white;
-margin:0;
-}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-header{
-background:#000;
-padding:15px;
-text-align:center;
-}
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--black);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
 
-.container{
-padding:15px;
-}
+    /* NAV */
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
 
-#login{
-text-align:center;
-margin-top:50px;
-}
+    .topbar-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--cyan);
+      letter-spacing: -0.02em;
+    }
 
-input, textarea{
-width:100%;
-padding:10px;
-margin:5px 0;
-border-radius:10px;
-border:none;
-}
+    .topbar-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+    }
 
-button{
-padding:10px;
-border:none;
-border-radius:10px;
-background:#00f2fe;
-cursor:pointer;
-}
+    .topbar-title {
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
 
-.card{
-background:rgba(255,255,255,0.05);
-padding:10px;
-border-radius:10px;
-margin:10px 0;
-}
+    /* LAYOUT */
+    .login-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 60px);
+      padding: 24px;
+    }
 
-.tabs{
-display:flex;
-justify-content:space-around;
-margin-top:10px;
-}
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+    }
 
-.tab{
-cursor:pointer;
-padding:10px;
-background:#111;
-}
+    .login-icon {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+      display: block;
+    }
 
-.active{
-background:#00f2fe;
-color:black;
-}
-</style>
+    .login-card h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .login-card p {
+      color: var(--muted);
+      font-size: 0.875rem;
+      margin-bottom: 28px;
+    }
+
+    /* PANEL */
+    .panel-wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 4px;
+      width: fit-content;
+      margin-bottom: 32px;
+    }
+
+    .tab-btn {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+    }
+
+    .tab-btn.active {
+      background: var(--surface-2);
+      color: var(--text);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+
+    /* FORM */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    .form-group label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      padding: 10px 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--border-h);
+      box-shadow: 0 0 0 3px rgba(99,211,255,0.15);
+    }
+
+    .form-group input[type="file"] {
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: var(--dim);
+    }
+
+    .form-group textarea { resize: vertical; }
+
+    /* INPUTS: password + submit */
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+      margin-bottom: 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="password"]:focus {
+      border-color: var(--border-h);
+      box-shadow: 0 0 0 3px rgba(99,211,255,0.15);
+    }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--cyan), #7dd3fc);
+      color: #050a14;
+    }
+
+    .btn-primary:hover { filter: brightness(1.1); }
+
+    .btn-full { width: 100%; }
+
+    .btn-danger {
+      background: rgba(239,68,68,0.1);
+      color: #f87171;
+      border: 1px solid rgba(239,68,68,0.2);
+      padding: 6px 12px;
+      font-size: 0.8rem;
+    }
+
+    .btn-danger:hover { background: rgba(239,68,68,0.2); }
+
+    /* PRODUCT LIST */
+    .product-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .product-row:last-child { border-bottom: none; }
+
+    .product-thumb {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+      background: var(--surface-2);
+      border-radius: 10px;
+      flex-shrink: 0;
+      padding: 4px;
+    }
+
+    .product-meta { flex: 1; }
+    .product-meta strong { display: block; font-size: 0.9rem; margin-bottom: 2px; }
+    .product-meta span { font-size: 0.78rem; color: var(--muted); }
+    .product-price-tag { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; color: var(--cyan); margin-right: 12px; white-space: nowrap; }
+
+    /* PEDIDO CARD */
+    .pedido-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 10px;
+    }
+
+    .pedido-card strong { color: var(--cyan); }
+
+    .pedido-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .pedido-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .pedido-total {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--cyan);
+    }
+
+    .pedido-details {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* STATUS */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: var(--cyan-dim);
+      color: var(--cyan);
+    }
+
+    /* EMPTY STATE */
+    .empty { padding: 48px 24px; text-align: center; color: var(--muted); }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+    /* UPLOADING STATE */
+    .uploading { opacity: 0.6; pointer-events: none; }
+
+    /* TOAST */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      background: var(--surface-2);
+      border: 1px solid var(--border-h);
+      color: var(--text);
+      padding: 11px 22px;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      z-index: 3000;
+      opacity: 0;
+      transition: all 0.3s var(--ease);
+      pointer-events: none;
+      white-space: nowrap;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .panel-wrap { padding: 24px 16px; }
+    }
+  </style>
 </head>
-
 <body>
 
-<header>
-<h2>⚙️ Panel Admin</h2>
-</header>
+  <div class="topbar">
+    <span class="topbar-logo">⚡ TecnologySmith</span>
+    <div class="topbar-divider"></div>
+    <span class="topbar-title">Panel de Administración</span>
+  </div>
 
-<div id="login">
-<input type="password" id="pass" placeholder="Contraseña">
-<button onclick="login()">Entrar</button>
-</div>
+  <!-- LOGIN -->
+  <div class="login-wrap" id="loginView">
+    <div class="login-card">
+      <span class="login-icon">🔐</span>
+      <h2>Acceso Admin</h2>
+      <p>Ingresa tu contraseña para continuar</p>
+      <input type="password" id="passInput" placeholder="Contraseña" onkeydown="if(event.key==='Enter')login()">
+      <button class="btn btn-primary btn-full" onclick="login()">Entrar</button>
+    </div>
+  </div>
 
-<div id="panel" style="display:none;">
+  <!-- PANEL -->
+  <div class="panel-wrap" id="panelView" style="display:none;">
 
-<div class="tabs">
-<div class="tab active" onclick="mostrar('productos')">Productos</div>
-<div class="tab" onclick="mostrar('pedidos')">Pedidos</div>
-</div>
+    <div class="tabs">
+      <button class="tab-btn active" id="tabProductos" onclick="mostrar('productos')">📦 Productos</button>
+      <button class="tab-btn" id="tabPedidos" onclick="mostrar('pedidos')">🛒 Pedidos</button>
+    </div>
 
-<div class="container">
+    <!-- TAB PRODUCTOS -->
+    <div id="vistaProductos">
 
-<div id="productos">
+      <div class="card">
+        <h3 class="card-title">Agregar nuevo producto</h3>
+        <form onsubmit="event.preventDefault(); guardarProducto()">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nombre del producto</label>
+              <input id="fNombre" placeholder="Ej: Netflix Premium 4K" required>
+            </div>
+            <div class="form-group">
+              <label>Categoría</label>
+              <input id="fCategoria" placeholder="Ej: Streaming" required>
+            </div>
+            <div class="form-group">
+              <label>Precio (COP)</label>
+              <input id="fPrecio" type="number" placeholder="Ej: 25000" required>
+            </div>
+            <div class="form-group">
+              <label>Oferta / Etiqueta</label>
+              <input id="fOferta" placeholder="Ej: 20% OFF (opcional)">
+            </div>
+            <div class="form-group">
+              <label>Imagen principal</label>
+              <input type="file" id="fImg1" accept="image/*" required>
+            </div>
+            <div class="form-group">
+              <label>Imagen 2 (opcional)</label>
+              <input type="file" id="fImg2" accept="image/*">
+            </div>
+            <div class="form-group full">
+              <label>Imagen 3 (opcional)</label>
+              <input type="file" id="fImg3" accept="image/*">
+            </div>
+            <div class="form-group full">
+              <label>Descripción</label>
+              <textarea id="fDescripcion" rows="3" placeholder="Describe el producto..."></textarea>
+            </div>
+          </div>
+          <div style="margin-top:20px;">
+            <button type="submit" class="btn btn-primary" id="btnGuardar">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Guardar producto
+            </button>
+          </div>
+        </form>
+      </div>
 
-<h3>Agregar Producto</h3>
+      <div class="card">
+        <h3 class="card-title">Productos publicados</h3>
+        <div id="listaProductos">
+          <div class="empty">
+            <div class="empty-icon">📦</div>
+            <p>Cargando productos...</p>
+          </div>
+        </div>
+      </div>
 
-<input id="nombre" placeholder="Nombre">
-<input id="categoria" placeholder="Categoría">
-<input id="precio" placeholder="Precio">
+    </div>
 
-<input type="file" id="img1">
-<input type="file" id="img2">
-<input type="file" id="img3">
+    <!-- TAB PEDIDOS -->
+    <div id="vistaPedidos" style="display:none;">
+      <div class="card">
+        <h3 class="card-title">Pedidos recientes</h3>
+        <div id="listaPedidos">
+          <div class="empty">
+            <div class="empty-icon">🛒</div>
+            <p>Cargando pedidos...</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<textarea id="descripcion" placeholder="Descripción"></textarea>
-<input id="oferta" placeholder="Oferta">
+  </div>
 
-<button onclick="guardarProducto()">Guardar</button>
+  <div id="toast"></div>
 
-<hr>
+  <script>
+    const PASSWORD  = "1234";  // ← Cambia tu contraseña aquí
+    const API_KEY   = "85cd8d6c8a475352e7616b5b7e94b686";
+    const WEBHOOK   = "https://script.google.com/macros/s/AKfycbyLJJHJluAqIfbeapk44PKglF1VYQXz6NGeHauio3-5UA3r2APAqWdDlXfGylv69jc3/exec";
+    const SHEET_URL = "https://opensheet.elk.sh/1bIcXzZy-yv3Veims11KbIbamG3ruhyspJC0tsCwhge8/Hoja1";
+    const PEDIDOS_URL = "https://opensheet.elk.sh/1bIcXzZy-yv3Veims11KbIbamG3ruhyspJC0tsCwhge8/Pedidos";
 
-<h3>Lista de Productos</h3>
-<div id="listaProductos"></div>
+    // LOGIN
+    function login() {
+      if (document.getElementById("passInput").value === PASSWORD) {
+        document.getElementById("loginView").style.display = "none";
+        document.getElementById("panelView").style.display = "block";
+        cargarProductos();
+        cargarPedidos();
+      } else {
+        toast("⚠️ Contraseña incorrecta");
+      }
+    }
 
-</div>
+    // TABS
+    function mostrar(tab) {
+      document.getElementById("vistaProductos").style.display = tab === "productos" ? "block" : "none";
+      document.getElementById("vistaPedidos").style.display   = tab === "pedidos"   ? "block" : "none";
+      document.getElementById("tabProductos").classList.toggle("active", tab === "productos");
+      document.getElementById("tabPedidos").classList.toggle("active", tab === "pedidos");
+    }
 
-<div id="pedidos" style="display:none;">
-<h3>Pedidos</h3>
-<div id="listaPedidos"></div>
-</div>
+    // SUBIR IMAGEN
+    async function subirImg(file) {
+      if (!file) return "";
+      const fd = new FormData();
+      fd.append("image", file);
+      const res  = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, { method: "POST", body: fd });
+      const data = await res.json();
+      return data.data.url;
+    }
 
-</div>
-</div>
+    // GUARDAR PRODUCTO
+    async function guardarProducto() {
+      const btn = document.getElementById("btnGuardar");
+      btn.textContent = "Guardando...";
+      btn.disabled = true;
 
-<script>
+      try {
+        const nombre      = document.getElementById("fNombre").value.trim();
+        const categoria   = document.getElementById("fCategoria").value.trim();
+        const precio      = document.getElementById("fPrecio").value;
+        const descripcion = document.getElementById("fDescripcion").value.trim();
+        const oferta      = document.getElementById("fOferta").value.trim();
 
-const PASSWORD = "1234";
-const API_KEY = "85cd8d6c8a475352e7616b5b7e94b686";
-const WEBHOOK = "https://script.google.com/macros/s/AKfycbyLJJHJluAqIfbeapk44PKglF1VYQXz6NGeHauio3-5UA3r2APAqWdDlXfGylv69jc3/exec";
-const SHEET_URL = "https://opensheet.elk.sh/1bIcXzZy-yv3Veims11KbIbamG3ruhyspJC0tsCwhge8/Hoja1";
+        const img1File = document.getElementById("fImg1").files[0];
+        const img2File = document.getElementById("fImg2").files[0];
+        const img3File = document.getElementById("fImg3").files[0];
 
-let productos = [];
+        const [url1, url2, url3] = await Promise.all([
+          subirImg(img1File),
+          subirImg(img2File),
+          subirImg(img3File)
+        ]);
 
-// LOGIN
-function login(){
-if(document.getElementById("pass").value === PASSWORD){
-document.getElementById("login").style.display="none";
-document.getElementById("panel").style.display="block";
-cargarProductos();
-cargarPedidos();
-}
-}
+        const payload = {
+          tipo: "producto", accion: "crear",
+          id: Date.now(),
+          nombre, categoria, precio,
+          imagen: url1, imagen2: url2, imagen3: url3,
+          descripcion, oferta
+        };
 
-// TABS
-function mostrar(tab){
-document.getElementById("productos").style.display="none";
-document.getElementById("pedidos").style.display="none";
-document.getElementById(tab).style.display="block";
-}
+        await fetch(WEBHOOK, {
+          method: "POST", mode: "no-cors",
+          body: JSON.stringify(payload)
+        });
 
-// SUBIR IMG
-async function subirImg(file){
-if(!file) return "";
+        toast("✅ Producto guardado correctamente");
 
-let fd = new FormData();
-fd.append("image", file);
+        // Reset form
+        ["fNombre","fCategoria","fPrecio","fDescripcion","fOferta"].forEach(id => document.getElementById(id).value = "");
+        ["fImg1","fImg2","fImg3"].forEach(id => document.getElementById(id).value = "");
 
-let res = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`,{
-method:"POST",
-body:fd
-});
+        setTimeout(() => cargarProductos(), 1500);
 
-let data = await res.json();
-console.log("IMG subida:", data);
+      } catch (e) {
+        toast("❌ Error: " + e.message);
+      } finally {
+        btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Guardar producto`;
+        btn.disabled = false;
+      }
+    }
 
-return data.data.url;
-}
+    // CARGAR PRODUCTOS
+    function cargarProductos() {
+      fetch(SHEET_URL)
+        .then(r => r.json())
+        .then(data => {
+          if (!data.length) {
+            document.getElementById("listaProductos").innerHTML = `<div class="empty"><div class="empty-icon">📦</div><p>No hay productos aún</p></div>`;
+            return;
+          }
+          document.getElementById("listaProductos").innerHTML = data.map(p => `
+            <div class="product-row">
+              <img class="product-thumb" src="${p.imagen}" alt="${p.nombre}" onerror="this.style.display='none'">
+              <div class="product-meta">
+                <strong>${p.nombre}</strong>
+                <span>${p.categoria}</span>
+              </div>
+              <span class="product-price-tag">$${Number(p.precio).toLocaleString("es-CO")}</span>
+              <button class="btn btn-danger" onclick="eliminar('${p.id}')">Eliminar</button>
+            </div>
+          `).join("");
+        })
+        .catch(() => toast("Error al cargar productos"));
+    }
 
-// GUARDAR PRODUCTO
-async function guardarProducto(){
+    // ELIMINAR PRODUCTO
+    function eliminar(id) {
+      if (!confirm("¿Eliminar este producto?")) return;
+      fetch(WEBHOOK, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tipo: "producto", accion: "eliminar", id })
+      });
+      toast("🗑️ Producto eliminado");
+      setTimeout(() => cargarProductos(), 1000);
+    }
 
-try{
+    // CARGAR PEDIDOS
+    function cargarPedidos() {
+      fetch(PEDIDOS_URL)
+        .then(r => r.json())
+        .then(data => {
+          if (!data.length) {
+            document.getElementById("listaPedidos").innerHTML = `<div class="empty"><div class="empty-icon">🛒</div><p>No hay pedidos aún</p></div>`;
+            return;
+          }
+          document.getElementById("listaPedidos").innerHTML = [...data].reverse().map(p => `
+            <div class="pedido-card">
+              <div class="pedido-header">
+                <span class="pedido-name">${p.nombre || "—"}</span>
+                <span class="pedido-total">$${Number(p.total || 0).toLocaleString("es-CO")}</span>
+              </div>
+              <div class="pedido-details">
+                📞 ${p.telefono || "—"} &nbsp;·&nbsp; 📍 ${p.direccion || "—"}<br>
+                <span style="margin-top:4px;display:block;">📦 ${p.productos || "—"}</span>
+              </div>
+            </div>
+          `).join("");
+        })
+        .catch(() => {
+          document.getElementById("listaPedidos").innerHTML = `<div class="empty"><p>No hay pedidos registrados aún.</p></div>`;
+        });
+    }
 
-let nombre = document.getElementById("nombre").value;
-let categoria = document.getElementById("categoria").value;
-let precio = document.getElementById("precio").value;
-let descripcion = document.getElementById("descripcion").value;
-let oferta = document.getElementById("oferta").value;
+    // TOAST
+    let toastTimer;
+    function toast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove("show"), 2800);
+    }
 
-console.log("📦 Datos:", {nombre, categoria, precio});
-
-let img1 = document.getElementById("img1").files[0];
-let img2 = document.getElementById("img2").files[0];
-let img3 = document.getElementById("img3").files[0];
-
-let url1 = await subirImg(img1);
-let url2 = await subirImg(img2);
-let url3 = await subirImg(img3);
-
-let payload = {
-tipo:"producto",
-accion:"crear",
-id: Date.now(),
-nombre,
-categoria,
-precio,
-imagen:url1,
-imagen2:url2,
-imagen3:url3,
-descripcion,
-oferta
-};
-
-console.log("📤 Enviando:", payload);
-
-await fetch(WEBHOOK,{
-method:"POST",
-mode:"no-cors",
-body:JSON.stringify(payload)
-});
-  
-alert("Producto enviado correctamente 🚀");
-  
-setTimeout(()=>cargarProductos(),1500);
-
-}catch(e){
-console.error("❌ ERROR:", e);
-alert("Error: " + e.message);
-}
-
-}
-
-// CARGAR PRODUCTOS
-function cargarProductos(){
-
-fetch(SHEET_URL)
-.then(r=>r.json())
-.then(data=>{
-
-productos = data;
-
-let html="";
-
-data.forEach(p=>{
-html+=`
-<div class="card">
-<b>${p.nombre}</b><br>
-💲 ${p.precio}<br>
-📂 ${p.categoria}<br>
-
-<button onclick="eliminar('${p.id}')">Eliminar</button>
-</div>
-`;
-});
-
-document.getElementById("listaProductos").innerHTML=html;
-
-});
-
-}
-
-// ELIMINAR
-function eliminar(id){
-
-fetch(WEBHOOK,{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-tipo:"producto",
-accion:"eliminar",
-id
-})
-});
-
-alert("Eliminado");
-setTimeout(()=>cargarProductos(),1000);
-}
-
-// PEDIDOS
-function cargarPedidos(){
-
-fetch("https://opensheet.elk.sh/1bIcXzZy-yv3Veims11KbIbamG3ruhyspJC0tsCwhge8/Pedidos")
-.then(r=>r.json())
-.then(data=>{
-
-let html="";
-
-data.reverse().forEach(p=>{
-html+=`
-<div class="card">
-👤 ${p.nombre}<br>
-📞 ${p.telefono}<br>
-💰 ${p.total}<br>
-📦 ${p.productos}
-</div>
-`;
-});
-
-document.getElementById("listaPedidos").innerHTML=html;
-
-});
-
-}
-
-</script>
-
+    // Enter en login
+    document.getElementById("passInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") login();
+    });
+  </script>
 </body>
 </html>
