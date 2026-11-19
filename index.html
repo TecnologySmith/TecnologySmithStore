@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TecnologySmith Store</title>
-  <link rel="icon" href="https://i.ibb.co/zTG22YZ4/unnamed.jpg">
+  <meta name="description" content="Explora el catálogo de TecnologySmith Store y consulta productos por WhatsApp.">
+  <meta name="theme-color" content="#f4f7fb">
+  <link rel="icon" type="image/png" href="assets/tecnologysmith-logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -12,17 +14,17 @@
 </head>
 <body>
 
-  <!-- TOP NAV -->
   <nav class="topnav">
     <div class="nav-inner">
       <a href="#" class="nav-logo">
-        <span class="logo-icon">⚡</span>
-        <span class="logo-text">TecnologySmith</span>
+        <img class="logo-image" src="assets/tecnologysmith-logo.png" alt="">
+        <span class="logo-text">TecnologySmith Store</span>
       </a>
       <div class="nav-links">
+        <a href="#catalogo">Catálogo</a>
+        <a href="#servicios">Servicios</a>
         <a href="https://tecnologysmith.github.io/plataformas.html/">Streaming</a>
         <a href="https://tecnologysmith.github.io/Peliculas_Melgar.html/">Películas</a>
-        <a href="https://tecnologysmith.github.io/pagina_web_gratis_2/">Web Gratis</a>
         <a href="#contacto">Contacto</a>
       </div>
       <button class="cart-btn" onclick="verCarrito()" aria-label="Ver carrito">
@@ -32,60 +34,166 @@
     </div>
   </nav>
 
-  <!-- HERO -->
   <section class="hero">
     <div class="hero-inner">
-      <p class="hero-eyebrow">Tecnología al alcance de todos</p>
-      <h1 class="hero-title">Tu tienda de<br><span class="hero-gradient">tecnología</span> digital</h1>
-      <p class="hero-sub">Streaming, software, servicios digitales y más — con soporte vía WhatsApp.</p>
-      <div class="search-wrap">
-        <div class="search-box">
-          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="buscar" placeholder="Buscar producto...">
+      <div class="hero-copy">
+        <p class="hero-eyebrow"><span class="status-dot"></span> Tecnología al alcance de todos</p>
+        <h1 class="hero-title">Encuentra lo que buscas.<br><span class="hero-gradient">Compra con confianza.</span></h1>
+        <p class="hero-sub">Explora nuestro catálogo, compara opciones y recibe atención directa por WhatsApp.</p>
+        <a class="hero-cta" href="#catalogo">
+          Explorar catálogo
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+        <div class="hero-note">
+          <span class="hero-note-icon">✓</span>
+          ¿No ves el precio? Puedes consultarlo por WhatsApp.
         </div>
-        <select id="filtro" class="category-select"></select>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <img class="hero-logo" src="assets/tecnologysmith-logo.png" alt="Logo de TecnologySmith Store" fetchpriority="high">
       </div>
     </div>
   </section>
 
-  <!-- PRODUCTS -->
-  <main class="main-content">
+  <main class="main-content" id="catalogo">
     <div class="section-header">
-      <h2 class="section-title">Catálogo</h2>
-      <span class="product-count" id="productCount"></span>
+      <div>
+        <p class="section-eyebrow">Explora y encuentra</p>
+        <h2 class="section-title">Nuestro catálogo</h2>
+        <p class="section-subtitle">Busca por nombre, filtra por categoría o elige cómo ordenar.</p>
+      </div>
     </div>
+
+    <section class="catalog-tools" aria-label="Buscar y filtrar productos">
+      <label class="search-box" for="buscar">
+        <svg class="search-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="search" id="buscar" placeholder="¿Qué estás buscando?" autocomplete="off">
+        <button class="search-clear" id="limpiarBusqueda" type="button" aria-label="Borrar búsqueda" hidden>×</button>
+      </label>
+
+      <div class="filter-controls">
+        <label class="filter-field">
+          <span>Categoría</span>
+          <select id="filtro" class="category-select">
+            <option value="">Todas las categorías</option>
+          </select>
+        </label>
+        <label class="filter-field">
+          <span>Precio</span>
+          <select id="estadoPrecio" class="category-select">
+            <option value="">Todos</option>
+            <option value="con-precio">Con precio</option>
+            <option value="cotizar">Consultar precio</option>
+          </select>
+        </label>
+        <label class="filter-field">
+          <span>Ordenar por</span>
+          <select id="ordenar" class="category-select">
+            <option value="relevancia">Recomendados</option>
+            <option value="precio-asc">Menor precio</option>
+            <option value="precio-desc">Mayor precio</option>
+            <option value="nombre">Nombre A–Z</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="category-shortcuts">
+        <span class="shortcuts-label">Categorías populares</span>
+        <div class="category-chips" id="categoryChips" aria-label="Categorías populares"></div>
+      </div>
+    </section>
+
+    <div class="results-bar">
+      <p class="product-count" id="productCount" aria-live="polite">Cargando productos…</p>
+      <button class="clear-filters" id="limpiarFiltros" type="button" hidden>Limpiar filtros</button>
+    </div>
+
     <div id="productos" class="product-grid"></div>
     <div id="emptyState" class="empty-state" style="display:none;">
-      <div class="empty-icon">🔍</div>
-      <p>No se encontraron productos</p>
-      <small>Intenta con otro término de búsqueda</small>
+      <div class="empty-icon">⌕</div>
+      <h3>No encontramos productos</h3>
+      <p>Prueba con otra búsqueda o quita algunos filtros.</p>
+      <button class="btn btn-secondary" type="button" onclick="limpiarFiltros()">Ver todo el catálogo</button>
     </div>
   </main>
 
-  <!-- CONTACT SECTION -->
+  <section class="services-section" id="servicios">
+    <div class="services-inner">
+      <div class="services-heading">
+        <div>
+          <p class="section-eyebrow">Más soluciones para ti</p>
+          <h2 class="section-title">Servicios TecnologySmith</h2>
+          <p class="section-subtitle">Además de nuestra tienda, apoyamos proyectos digitales y tecnológicos para personas y negocios.</p>
+        </div>
+        <a class="services-main-link" href="https://tecnologysmith.com/" target="_blank" rel="noopener noreferrer">
+          Conocer todos los servicios
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>
+        </a>
+      </div>
+
+      <div class="services-grid">
+        <article class="service-card">
+          <div class="service-icon service-icon-blue" aria-hidden="true">⌘</div>
+          <h3>Páginas web y apps</h3>
+          <p>Sitios para negocios, tiendas virtuales y aplicaciones web adaptables a celulares, con opciones de integración con WhatsApp y pagos.</p>
+          <a href="https://tecnologysmith.com/#contacto" target="_blank" rel="noopener noreferrer">Cotizar un proyecto <span aria-hidden="true">→</span></a>
+        </article>
+
+        <article class="service-card">
+          <div class="service-icon service-icon-purple" aria-hidden="true">✦</div>
+          <h3>Marketing y redes</h3>
+          <p>Creación de contenido, diseño gráfico y apoyo estratégico para fortalecer la presencia de tu marca en redes sociales.</p>
+          <a href="https://tecnologysmith.github.io/TecnologySmithmarketing/" target="_blank" rel="noopener noreferrer">Conocer Marketing Smith <span aria-hidden="true">→</span></a>
+        </article>
+
+        <article class="service-card">
+          <div class="service-icon service-icon-orange" aria-hidden="true">◈</div>
+          <h3>Diseño e impresión 3D</h3>
+          <p>Piezas personalizadas, repuestos, prototipos y objetos decorativos, desde el diseño hasta la fabricación.</p>
+          <a href="https://tecnologysmith.com/#3d" target="_blank" rel="noopener noreferrer">Ver impresión 3D <span aria-hidden="true">→</span></a>
+        </article>
+
+        <article class="service-card">
+          <div class="service-icon service-icon-green" aria-hidden="true">▷</div>
+          <h3>Plataformas de streaming</h3>
+          <p>Consulta el catálogo de plataformas y las opciones disponibles. Recibe orientación y soporte por WhatsApp.</p>
+          <a href="https://tecnologysmith.github.io/plataformas.html/" target="_blank" rel="noopener noreferrer">Ver catálogo de streaming <span aria-hidden="true">→</span></a>
+        </article>
+
+        <article class="service-card">
+          <div class="service-icon service-icon-cyan" aria-hidden="true">▤</div>
+          <h3>Noticias y guías tech</h3>
+          <p>Artículos, recomendaciones y guías para mantenerte al día con la tecnología y el mundo digital.</p>
+          <a href="https://techsmith-bytes.lovable.app/" target="_blank" rel="noopener noreferrer">Visitar TechSmith Bytes <span aria-hidden="true">→</span></a>
+        </article>
+      </div>
+    </div>
+  </section>
+
   <section class="contact-section" id="contacto">
     <div class="contact-inner">
       <div class="contact-text">
-        <h3>¿Tienes alguna duda?</h3>
-        <p>Escríbenos por WhatsApp y te atendemos al instante.</p>
+        <span class="contact-icon">✳</span>
+        <div>
+          <h3>¿Necesitas ayuda para elegir?</h3>
+          <p>Escríbenos y te ayudamos a resolver tus dudas.</p>
+        </div>
       </div>
-      <a href="https://wa.me/573222117202" target="_blank" class="whatsapp-btn">
+      <a href="https://wa.me/573222117202" target="_blank" rel="noopener noreferrer" class="whatsapp-btn">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.555 4.116 1.527 5.847L0 24l6.278-1.508A11.946 11.946 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.894a9.877 9.877 0 0 1-5.032-1.375l-.36-.214-3.732.896.938-3.636-.234-.374A9.868 9.868 0 0 1 2.106 12C2.106 6.534 6.534 2.106 12 2.106S21.894 6.534 21.894 12 17.466 21.894 12 21.894z"/></svg>
-        Chatear por WhatsApp
+        Hablar por WhatsApp
       </a>
     </div>
   </section>
 
   <footer class="footer">
-    <p>© 2025 TecnologySmith Store · Hecho con ❤️ para Colombia</p>
+    <p>© 2026 TecnologySmith Store · Hecho para Colombia</p>
   </footer>
 
-  <!-- MODAL -->
   <div id="modal" class="modal" onclick="cerrarModal(event)">
     <div class="modal-box" id="modalContent"></div>
   </div>
 
-  <!-- TOAST -->
   <div id="toast" class="toast"></div>
 
   <script src="script.js"></script>

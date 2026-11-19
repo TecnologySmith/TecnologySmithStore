@@ -19,6 +19,14 @@ document.addEventListener("DOMContentLoaded", () => {
   cargarProductos();
   document.getElementById("buscar").addEventListener("input", filtrar);
   document.getElementById("filtro").addEventListener("change", filtrar);
+  document.getElementById("estadoPrecio").addEventListener("change", filtrar);
+  document.getElementById("ordenar").addEventListener("change", filtrar);
+  document.getElementById("limpiarBusqueda").addEventListener("click", () => {
+    document.getElementById("buscar").value = "";
+    filtrar();
+    document.getElementById("buscar").focus();
+  });
+  document.getElementById("limpiarFiltros").addEventListener("click", limpiarFiltros);
 });
 
 // =============================================
@@ -67,6 +75,7 @@ function renderProductos(data) {
   if (!data.length) {
     grid.innerHTML = "";
     mostrarEmpty(true);
+    actualizarContador(0);
     return;
   }
 
@@ -74,23 +83,26 @@ function renderProductos(data) {
   actualizarContador(data.length);
 
   grid.innerHTML = data.map(p => {
-    const precio = Number(p.precio).toLocaleString("es-CO");
+    const tienePrecio = productoTienePrecio(p);
+    const precio = tienePrecio
+      ? `<small>$</small>${Number(p.precio).toLocaleString("es-CO")}`
+      : "Consultar precio";
     return `
       <article class="product-card">
         <div class="product-img-wrap">
-          <img src="${p.imagen}" alt="${p.nombre}" loading="lazy">
+          <img src="${p.imagen}" alt="${p.nombre}" loading="lazy" decoding="async">
         </div>
         <div class="product-body">
-          <span class="category-badge">${p.categoria}</span>
+          <span class="category-badge">${p.categoria || "General"}</span>
           <h3 class="product-name">${p.nombre}</h3>
-          <p class="product-price"><small>$</small>${precio}</p>
+          <p class="product-price ${tienePrecio ? "" : "product-price-quote"}">${precio}</p>
           <div class="card-actions">
             <button class="btn btn-secondary" onclick="verDetalles('${p.id}')">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               Ver
             </button>
-            <button class="btn btn-primary" onclick="comprarProducto('${p.id}')">
-              Comprar
+            <button class="btn btn-primary" onclick="${tienePrecio ? `comprarProducto('${p.id}')` : `cotizarProducto('${p.id}')`}">
+              ${tienePrecio ? "Comprar" : "Consultar precio"}
             </button>
           </div>
         </div>
@@ -99,9 +111,18 @@ function renderProductos(data) {
   }).join("");
 }
 
+function productoTienePrecio(producto) {
+  const precio = String(producto.precio === null || producto.precio === undefined ? "" : producto.precio).trim();
+  return precio !== "" && Number.isFinite(Number(precio)) && Number(precio) > 0;
+}
+
 function actualizarContador(n) {
   const el = document.getElementById("productCount");
-  if (el) el.textContent = `${n} producto${n !== 1 ? "s" : ""}`;
+  if (!el) return;
+  const total = productosData.length;
+  el.textContent = n === total
+    ? `${n} producto${n !== 1 ? "s" : ""}`
+    : `Mostrando ${n} de ${total} productos`;
 }
 
 function mostrarEmpty(show) {
@@ -114,19 +135,128 @@ function mostrarEmpty(show) {
 // =============================================
 
 function cargarCategorias(data) {
-  const cats = [...new Set(data.map(p => p.categoria).filter(Boolean))];
+  const conteo = new Map();
+  data.forEach(producto => {
+    categoriasProducto(producto).forEach(categoria => {
+      conteo.set(categoria, (conteo.get(categoria) || 0) + 1);
+    });
+  });
+  const cats = [...conteo.keys()].sort((a, b) => a.localeCompare(b, "es"));
   const select = document.getElementById("filtro");
-  select.innerHTML = `<option value="">Todas las categorías</option>` +
-    cats.map(c => `<option value="${c}">${c}</option>`).join("");
+  select.innerHTML = "";
+  const allOption = document.createElement("option");
+  allOption.value = "";
+  allOption.textContent = "Todas las categorías";
+  select.appendChild(allOption);
+  cats.forEach(categoria => {
+    const option = document.createElement("option");
+    option.value = categoria;
+    option.textContent = `${categoria} (${conteo.get(categoria)})`;
+    select.appendChild(option);
+  });
+
+  const chips = document.getElementById("categoryChips");
+  if (!chips) return;
+  chips.innerHTML = "";
+  const populares = [...conteo.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "es"))
+    .slice(0, 7);
+  const opciones = [["", "Todas"], ...populares.map(([categoria]) => [categoria, categoria])];
+  opciones.forEach(([categoria, nombre]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "category-chip";
+    button.dataset.category = categoria;
+    button.textContent = categoria ? `${nombre} (${conteo.get(categoria)})` : nombre;
+    button.setAttribute("aria-pressed", categoria === select.value ? "true" : "false");
+    button.addEventListener("click", () => {
+      select.value = categoria;
+      filtrar();
+    });
+    chips.appendChild(button);
+  });
+}
+
+function categoriasProducto(producto) {
+  return String(producto.categoria || "")
+    .split(/\s+\/\s+/)
+    .map(categoria => categoria.trim())
+    .filter(Boolean);
+}
+
+function normalizarTexto(texto) {
+  return String(texto || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
 }
 
 function filtrar() {
-  const texto = document.getElementById("buscar").value.toLowerCase();
+  const texto = normalizarTexto(document.getElementById("buscar").value);
   const cat = document.getElementById("filtro").value;
-  const filtrados = productosData.filter(p =>
-    p.nombre.toLowerCase().includes(texto) && (!cat || p.categoria === cat)
-  );
+  const estadoPrecio = document.getElementById("estadoPrecio").value;
+  const filtrados = productosData.filter(producto => {
+    const contenido = normalizarTexto([
+      producto.nombre,
+      producto.categoria,
+      producto.descripcion
+    ].join(" "));
+    const coincideTexto = !texto || contenido.includes(texto);
+    const coincideCategoria = !cat || categoriasProducto(producto).includes(cat);
+    const tienePrecio = productoTienePrecio(producto);
+    const coincidePrecio = !estadoPrecio ||
+      (estadoPrecio === "con-precio" && tienePrecio) ||
+      (estadoPrecio === "cotizar" && !tienePrecio);
+    return coincideTexto && coincideCategoria && coincidePrecio;
+  });
+
+  const orden = document.getElementById("ordenar").value;
+  filtrados.sort((a, b) => {
+    const precioA = productoTienePrecio(a) ? Number(a.precio) : null;
+    const precioB = productoTienePrecio(b) ? Number(b.precio) : null;
+    if (orden === "precio-asc" || orden === "precio-desc") {
+      if (precioA === null) return precioB === null ? 0 : 1;
+      if (precioB === null) return -1;
+      return orden === "precio-asc" ? precioA - precioB : precioB - precioA;
+    }
+    if (orden === "nombre") {
+      return String(a.nombre || "").localeCompare(String(b.nombre || ""), "es");
+    }
+    return 0;
+  });
+
   renderProductos(filtrados);
+  actualizarFiltrosActivos();
+  actualizarChipsActivos();
+}
+
+function actualizarFiltrosActivos() {
+  const activos = Boolean(
+    document.getElementById("buscar").value.trim() ||
+    document.getElementById("filtro").value ||
+    document.getElementById("estadoPrecio").value ||
+    document.getElementById("ordenar").value !== "relevancia"
+  );
+  document.getElementById("limpiarFiltros").hidden = !activos;
+  document.getElementById("limpiarBusqueda").hidden = !document.getElementById("buscar").value;
+}
+
+function actualizarChipsActivos() {
+  const categoriaSeleccionada = document.getElementById("filtro").value;
+  document.querySelectorAll(".category-chip").forEach(button => {
+    const activo = button.dataset.category === categoriaSeleccionada;
+    button.classList.toggle("active", activo);
+    button.setAttribute("aria-pressed", activo ? "true" : "false");
+  });
+}
+
+function limpiarFiltros() {
+  document.getElementById("buscar").value = "";
+  document.getElementById("filtro").value = "";
+  document.getElementById("estadoPrecio").value = "";
+  document.getElementById("ordenar").value = "relevancia";
+  filtrar();
 }
 
 // =============================================
@@ -136,6 +266,10 @@ function filtrar() {
 function agregarCarrito(id) {
   const p = productosData.find(x => x.id == id);
   if (!p) return;
+  if (!productoTienePrecio(p)) {
+    cotizarProducto(id);
+    return;
+  }
   carrito.push(p);
   actualizarBadge();
   mostrarToast(`✓ "${p.nombre}" añadido al carrito`);
@@ -152,9 +286,20 @@ function actualizarBadge() {
 function comprarProducto(id) {
   const p = productosData.find(x => x.id == id);
   if (!p) return;
+  if (!productoTienePrecio(p)) {
+    cotizarProducto(id);
+    return;
+  }
   carrito = [p];
   actualizarBadge();
   abrirCarrito();
+}
+
+function cotizarProducto(id) {
+  const p = productosData.find(x => x.id == id);
+  if (!p) return;
+  const mensaje = `Hola, ¿me indicas el precio de este producto? ${p.nombre}`;
+  window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(mensaje)}`, "_blank");
 }
 
 // =============================================
@@ -276,7 +421,8 @@ function verDetalles(id) {
 
   const imagenes = [p.imagen, p.imagen2, p.imagen3].filter(x => x && x.trim() !== "");
   let current = 0;
-  const precio = Number(p.precio).toLocaleString("es-CO");
+  const tienePrecio = productoTienePrecio(p);
+  const precio = tienePrecio ? `$${Number(p.precio).toLocaleString("es-CO")}` : "Consultar precio";
 
   const dotsHTML = imagenes.length > 1
     ? `<div style="display:flex;justify-content:center;gap:6px;margin-top:10px;">
@@ -300,14 +446,20 @@ function verDetalles(id) {
       <span class="category-badge" style="margin-bottom:12px;">${p.categoria}</span>
       <h2 class="modal-product-title">${p.nombre}</h2>
       <p class="modal-product-desc">${p.descripcion || "Sin descripción disponible."}</p>
-      <p class="modal-product-price"><small style="font-size:1rem;">$</small>${precio}</p>
+      <p class="modal-product-price">${precio}</p>
       <div class="modal-actions">
-        <button class="btn btn-secondary btn-lg" onclick="agregarCarrito('${p.id}'); cerrarModal()">
-          + Carrito
-        </button>
-        <button class="btn btn-primary btn-lg" onclick="comprarProducto('${p.id}')">
-          Comprar ahora
-        </button>
+        ${tienePrecio ? `
+          <button class="btn btn-secondary btn-lg" onclick="agregarCarrito('${p.id}'); cerrarModal()">
+            + Carrito
+          </button>
+          <button class="btn btn-primary btn-lg" onclick="comprarProducto('${p.id}')">
+            Comprar ahora
+          </button>
+        ` : `
+          <button class="btn btn-primary btn-lg" onclick="cotizarProducto('${p.id}')">
+            Consultar precio por WhatsApp
+          </button>
+        `}
       </div>
     </div>
   `);
